@@ -421,7 +421,7 @@ void CreateNewVariable(char *name, char *value, VariableType type)
   }
 }
 
-char *EvaluateIntExpression(IntExpression *expression)
+char *EvaluateIntExpression(IntExpression *expression)//čia kažkas rimto vyksta. Tipo visi vieksmai su int ?
 {
   if (NULL == expression)
     return NULL;
@@ -535,7 +535,7 @@ char *GetBoolValueInt(int value)
   }
 }
 
-char *EvaluateBoolExpression(BoolExpression *expression)
+char *EvaluateBoolExpression(BoolExpression *expression)//cia tipo tas viduj ifo. returnina reiksme true ar false? 570 - 581 čia įrodo kad gražina tik true arba false
 {
   if (NULL == expression)
     return NULL;
@@ -609,7 +609,7 @@ char *EvaluateBoolExpression(BoolExpression *expression)
   return value;
 }
 
-void EvaluateStatement(Statement *statement)
+void EvaluateStatement(Statement *statement)//tikrina kas per statement ir žiūri ką daryt kur siust toliau vykdyt
 {
   if (NULL == statement)
     return;
@@ -714,7 +714,7 @@ void EvaluateStatement(Statement *statement)
   }
 }
 
-void DeleteIntExpression(IntExpression *expression)
+void DeleteIntExpression(IntExpression *expression)//atlaisvina atminti?
 {
   if (NULL == expression)
     return;
