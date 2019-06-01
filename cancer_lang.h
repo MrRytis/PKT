@@ -82,7 +82,8 @@ typedef enum StatementTypeEnum
     BoolAssignment,
     Print,
     Sequence,
-    Conditional
+    Conditional,
+    While
 } StatementType;
 
 typedef struct StatementStruct Statement;
@@ -108,6 +109,7 @@ Statement *BuildBoolDeclaration(char *variable, BoolExpression *value);
 Statement *BuildPrint(char *variable);
 Statement *BuildStatementSequence(Statement *first, Statement *second);
 Statement *BuildConditional(Statement *ifTrue, Statement *ifFalse, BoolExpression *condition);
+Statement *BuildWhile(Statement *ifTrue, BoolExpression *condition);
 
 IntExpression *BuildNumber(int number);
 IntExpression *BuildSum(IntExpression *left, IntExpression *right);

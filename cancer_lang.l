@@ -25,6 +25,8 @@ STRING \"(\\.|[^"\\])*\"
 "true"                 { return TRUE; }
 "false"                { return FALSE; }
 "if"                   { return IF; }
+'function'             { return FUNCTION; }
+'while'                { return WHILE; }
 "{"                    { return L_CURL; }
 "}"                    { return R_CURL; }
 "else"                 { return ELSE; }

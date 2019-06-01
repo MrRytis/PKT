@@ -50,6 +50,7 @@ typedef void* yyscan_t;
 %token TRUE FALSE
 %token TYPE_INT TYPE_STRING TYPE_BOOL
 %token PRINT IF L_CURL R_CURL ELSE
+%token WHILE FUNCTION
 %token LTEQ GTEQ LT GT EQUALS NOT AND OR
 %token L_PAREN R_PAREN STAR PLUS MINUS SLASH ASSIGNMENT ENDL
 %token <value> NUMBER
@@ -71,6 +72,7 @@ statement: ENDL { $$ = NULL; }
   | VAR_NAME ASSIGNMENT string_expression { $$ = BuildStringAssignment($1, $3); }
   | VAR_NAME ASSIGNMENT bool_expression { $$ = BuildBoolAssignment($1, $3); }
   | IF bool_expression L_CURL block R_CURL ENDL ELSE L_CURL block R_CURL { $$ = BuildConditional($4, $9, $2); }
+  | WHILE bool_expression L_CURL block R_CURL ENDL { $$ = BuildConditional($4, $2)}
   | PRINT VAR_NAME { $$ = BuildPrint($2); }
 
 int_expression:

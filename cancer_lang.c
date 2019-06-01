@@ -55,6 +55,20 @@ Statement *BuildConditional(Statement *ifTrue, Statement *ifFalse, BoolExpressio
   return result;
 }
 
+Statement *BuildWhile(Statement *ifTrue, BoolExpression *condition)
+{
+  Statement *result = (Statement *)malloc(sizeof(Statement)); 
+   if (NULL == result)
+    exit(-1);
+
+  result->Type = While;
+  result->Left = ifTrue;
+  //result->Right = ifFalse;
+  result->BoolValue = condition;
+
+  return result;
+}
+
 Statement *BuildIntAssignment(char *variable, IntExpression *value)
 {
   Statement *result = (Statement *)malloc(sizeof(Statement));
