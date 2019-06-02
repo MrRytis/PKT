@@ -55,6 +55,19 @@ Statement *BuildConditional(Statement *ifTrue, Statement *ifFalse, BoolExpressio
   return result;
 }
 
+Statement *BuildWhile(Statement *ifTrue, BoolExpression *condition)
+{
+  Statement *result = (Statement *)malloc(sizeof(Statement));
+  if (NULL == result)
+    exit(-1);
+
+  result->Type = While;
+  result->Left = ifTrue;
+  result->BoolValue = condition;
+
+  return result;
+}
+
 Statement *BuildIntAssignment(char *variable, IntExpression *value)
 {
   Statement *result = (Statement *)malloc(sizeof(Statement));
@@ -608,8 +621,8 @@ char *EvaluateBoolExpression(BoolExpression *expression)//cia tipo tas viduj ifo
 
   return value;
 }
-
-void EvaluateStatement(Statement *statement)//tikrina kas per statement ir žiūri ką daryt kur siust toliau vykdyt
+//pirmas metodasi kuri kreipiasi main. po eilute eina ir vykdo speju
+void EvaluateStatement(Statement *statement)//tikrina kas per statement ir žiūri ką daryt kur siust toliau vykdyt.
 {
   if (NULL == statement)
     return;
@@ -710,6 +723,19 @@ void EvaluateStatement(Statement *statement)//tikrina kas per statement ir žiū
     {
       EvaluateStatement(statement->Right);
     }
+    break;
+  case While:
+    value = EvaluateBoolExpression(statement->BoolValue);
+    while (GetBoolValue(value) == 1)
+    {
+      EvaluateStatement(statement->Left);
+      value = EvaluateBoolExpression(statement->BoolValue);
+    }
+    
+    /*if (GetBoolValue(value) == 1)
+    {
+      EvaluateStatement(statement->Left);
+    }*/   
     break;
   }
 }
