@@ -41,5 +41,8 @@ if !adc {
 else {
   gh = gh + 7
 }
+while gh < 30 {
+  gh = gh + 7
+}
 
 print gh
