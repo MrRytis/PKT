@@ -72,6 +72,14 @@ struct BoolExpressionStruct
     char *Value;
 };
 
+typedef struct FunctionStruct Function;
+struct FunctionStruct
+{
+    char *Variable;
+    char *Value;
+};
+
+
 typedef enum StatementTypeEnum
 {
     IntDeclaration,
@@ -83,7 +91,8 @@ typedef enum StatementTypeEnum
     Print,
     Sequence,
     Conditional,
-    While
+    While,
+    Func
 } StatementType;
 
 typedef struct StatementStruct Statement;
@@ -95,6 +104,7 @@ struct StatementStruct
     IntExpression *IntValue;
     BoolExpression *BoolValue;
     StringExpression *StringValue;
+    Function *FuctionValue;
     char *Variable;
 };
 
