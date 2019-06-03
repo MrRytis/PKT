@@ -737,6 +737,9 @@ void EvaluateStatement(Statement *statement)//tikrina kas per statement ir žiū
       EvaluateStatement(statement->Left);
     }*/   
     break;
+  case Func:
+    //do stuff
+    break;
   }
 }
 

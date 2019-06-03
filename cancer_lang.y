@@ -50,6 +50,7 @@ typedef void* yyscan_t;
 %token TRUE FALSE
 %token TYPE_INT TYPE_STRING TYPE_BOOL
 %token PRINT IF WHILE L_CURL R_CURL ELSE
+%token FUNC
 %token LTEQ GTEQ LT GT EQUALS NOT AND OR
 %token L_PAREN R_PAREN STAR PLUS MINUS SLASH ASSIGNMENT ENDL
 %token <value> NUMBER
@@ -72,6 +73,11 @@ statement: ENDL { $$ = NULL; }
   | VAR_NAME ASSIGNMENT bool_expression { $$ = BuildBoolAssignment($1, $3); }
   | IF bool_expression L_CURL block R_CURL ENDL ELSE L_CURL block R_CURL { $$ = BuildConditional($4, $9, $2); }
   | WHILE bool_expression L_CURL block R_CURL ENDL { $$ = BuildWhile($4, $2); }
+  | FUNC VAR_NAME '(' TYPE_INT VAR_NAME ')' L_CURL block R_CURL ENDL { $$ = BuilFunctionWithInt($2, $5, $7); }
+  | FUNC VAR_NAME '(' TYPE_STRING VAR_NAME ')' L_CURL block R_CURL ENDL { $$ = BuilFunctionWithString($2, $5, $7); }
+  | TYPE_INT VAR_NAME ASSIGNMENT funct_expression { $$ = BuildFunctionAssigmentInt($2, $4); }
+  | TYPE_STRING VAR_NAME ASSIGNMENT funct_expression { $$ = BuildFunctionAssigmentString($2, $4); }
+  | VAR_NAME ASSIGNMENT funct_expression { $$ = BuildFunctionAssigment($1, $4); }
   | PRINT VAR_NAME { $$ = BuildPrint($2); }
 
 int_expression:
@@ -100,5 +106,9 @@ bool_expression:
   | bool_expression AND bool_expression { $$ = BuildAnd($1, $3); }
   | bool_expression OR bool_expression { $$ = BuildOr($1, $3); }
   | L_PAREN bool_expression R_PAREN { $$ = $2; }
+
+funct_expression:
+  | VAR_NAME { $$ = BuildFunctionExpresionEmpty($1); }
+  | VAR_NAME '(' VAR_NAME ')' { $$ = BuildFunctionExpresion($1, $3); }
 
 %%
