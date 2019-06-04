@@ -72,14 +72,6 @@ struct BoolExpressionStruct
     char *Value;
 };
 
-typedef struct FunctionStruct Function;
-struct FunctionStruct
-{
-    char *Variable;
-    char *Value;
-};
-
-
 typedef enum StatementTypeEnum
 {
     IntDeclaration,
@@ -92,8 +84,35 @@ typedef enum StatementTypeEnum
     Sequence,
     Conditional,
     While,
-    Func
+    FunctionDeclaration,
+    FunctionCall
 } StatementType;
+
+typedef enum PrintExpresssionTypeEnum
+{
+    PrintString,
+    PrintVariable
+} PrintExpresssionType;
+
+typedef struct PrintExpressionStruct PrintExpression;
+struct PrintExpressionStruct
+{
+    PrintExpresssionType Type;
+    char *Variable;
+    char *Value;
+};
+
+typedef struct ParameterStruct Parameter;
+struct ParameterStruct
+{
+    BoolExpression *boole;
+    IntExpression *inte;
+    StringExpression *stringe;
+    VariableType Type;
+    Parameter *Next;
+    char *Name;
+    char *Value;
+};
 
 typedef struct StatementStruct Statement;
 struct StatementStruct
@@ -104,8 +123,18 @@ struct StatementStruct
     IntExpression *IntValue;
     BoolExpression *BoolValue;
     StringExpression *StringValue;
-    Function *FuctionValue;
+    PrintExpression *PrintValue;
+    Parameter *Params;
     char *Variable;
+};
+
+typedef struct FunctionStruct Function;
+struct FunctionStruct
+{
+    Parameter *Params;
+    char *FunctionName;
+    Statement *Body;
+    Function *Next;
 };
 
 Statement *BuildIntAssignment(char *variable, IntExpression *value);
@@ -116,11 +145,22 @@ Statement *BuildIntDeclaration(char *variable, IntExpression *value);
 Statement *BuildStringDeclaration(char *variable, StringExpression *value);
 Statement *BuildBoolDeclaration(char *variable, BoolExpression *value);
 
-Statement *BuildPrint(char *variable);
+Statement *BuildPrint(PrintExpression *variable);
 Statement *BuildStatementSequence(Statement *first, Statement *second);
 Statement *BuildConditional(Statement *ifTrue, Statement *ifFalse, BoolExpression *condition);
+Statement *BuildWhile(BoolExpression *condition, Statement *body);
+Statement *BuildFunction(char *function_name, Parameter *params, Statement *body);
+Statement *BuildFunctionCall(char *function_name, Parameter *values);
 
-Statement *BuildWhile(Statement *ifTrue, BoolExpression *condition);
+Parameter *BuildParam(char *name, VariableType type);
+Parameter *BuildParameterList(Parameter *first, Parameter *second);
+
+Parameter *BuildIntValueParam(IntExpression *expression);
+Parameter *BuildStringValueParam(StringExpression *expression);
+Parameter *BuildBoolValueParam(BoolExpression *expression);
+
+PrintExpression *BuildPrintString(char *value);
+PrintExpression *BuildPrintVariable(char *variable);
 
 IntExpression *BuildNumber(int number);
 IntExpression *BuildSum(IntExpression *left, IntExpression *right);
@@ -147,6 +187,7 @@ void DeleteStatement(Statement *statement);
 void DeleteArithmeticExpression(IntExpression *expression);
 
 void FreeMemory();
+void FreeFunctionMemory();
 
 void EvaluateStatement(Statement *statement);
 

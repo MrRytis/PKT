@@ -5,25 +5,105 @@
 #include <stdio.h>
 
 typedef struct VariableStruct Variable;
-
 struct VariableStruct
 {
   char *Name;
   char *Value;
   VariableType Type;
   Variable *Next;
+  char *Scope;
 };
 
+char *currentScope = "global";
 Variable *Memory;
+Function *FuncMemory;
 
-Statement *BuildPrint(char *variable)
+Function *GetFunction(char *function_name)
+{
+  if (NULL == FuncMemory)
+    return NULL;
+
+  Function *result = FuncMemory;
+  while (NULL != result->Next)
+  {
+    if (0 == strcmp(result->FunctionName, function_name))
+      return result;
+
+    result = result->Next;
+  }
+
+  if (0 == strcmp(result->FunctionName, function_name))
+    return result;
+  return NULL;
+}
+
+void DeleteParameter(Parameter *parameter)
+{
+  Parameter *iterator = parameter;
+  while (NULL != iterator)
+  {
+    Parameter *temp = iterator;
+    iterator = iterator->Next;
+
+    free(temp->Name);
+    free(temp->Value);
+    free(temp);
+  }
+}
+
+void FreeFunctionMemory()
+{
+  Function *iterator = FuncMemory;
+  while (NULL != iterator)
+  {
+    Function *temp = iterator;
+    iterator = iterator->Next;
+
+    free(temp);
+  }
+}
+
+Function *CreateFunction(char *name, Parameter *params, Statement *body)
+{
+  Function *result = (Function *)malloc(sizeof(Function));
+  if (NULL == result)
+    exit(-1);
+
+  result->FunctionName = name;
+  result->Next = NULL;
+  result->Body = body;
+  result->Params = params;
+}
+
+void CreateNewFunction(char *name, Parameter *params, Statement *body)
+{
+  if (NULL == FuncMemory)
+  {
+    FuncMemory = CreateFunction(name, params, body);
+  }
+  else
+  {
+    Function *result = FuncMemory;
+    while (NULL != result->Next)
+    {
+      if (0 == strcmp(result->FunctionName, name))
+        break;
+
+      result = result->Next;
+    }
+
+    result->Next = CreateFunction(name, params, body);
+  }
+}
+
+Statement *BuildPrint(PrintExpression *variable)
 {
   Statement *result = (Statement *)malloc(sizeof(Statement));
   if (NULL == result)
     exit(-1);
 
   result->Type = Print;
-  result->Variable = variable;
+  result->PrintValue = variable;
 
   return result;
 }
@@ -55,14 +135,14 @@ Statement *BuildConditional(Statement *ifTrue, Statement *ifFalse, BoolExpressio
   return result;
 }
 
-Statement *BuildWhile(Statement *ifTrue, BoolExpression *condition)
+Statement *BuildWhile(BoolExpression *condition, Statement *body)
 {
   Statement *result = (Statement *)malloc(sizeof(Statement));
   if (NULL == result)
     exit(-1);
 
   result->Type = While;
-  result->Left = ifTrue;
+  result->Left = body;
   result->BoolValue = condition;
 
   return result;
@@ -142,6 +222,94 @@ Statement *BuildBoolDeclaration(char *variable, BoolExpression *value)
   result->Type = BoolDeclaration;
   result->Variable = variable;
   result->BoolValue = value;
+
+  return result;
+}
+
+Parameter *BuildParam(char *name, VariableType type)
+{
+  Parameter *result = (Parameter *)malloc(sizeof(Parameter));
+  if (NULL == result)
+    exit(-1);
+
+  result->Type = type;
+  result->Name = name;
+  result->Next = NULL;
+
+  return result;
+}
+
+Parameter *BuildIntValueParam(IntExpression *expression)
+{
+  Parameter *result = (Parameter *)malloc(sizeof(Parameter));
+  if (NULL == result)
+    exit(-1);
+
+  result->Type = INT;
+  result->inte = expression;
+  result->Next = NULL;
+
+  return result;
+}
+
+Parameter *BuildStringValueParam(StringExpression *expression)
+{
+  Parameter *result = (Parameter *)malloc(sizeof(Parameter));
+  if (NULL == result)
+    exit(-1);
+
+  result->Type = STRING;
+  result->stringe = expression;
+  result->Next = NULL;
+
+  return result;
+}
+
+Parameter *BuildBoolValueParam(BoolExpression *expression)
+{
+  Parameter *result = (Parameter *)malloc(sizeof(Parameter));
+  if (NULL == result)
+    exit(-1);
+
+  result->Type = BOOL;
+  result->boole = expression;
+  result->Next = NULL;
+
+  return result;
+}
+
+Parameter *BuildParameterList(Parameter *first, Parameter *second)
+{
+  if (NULL == first || NULL == second)
+    exit(-1);
+
+  first->Next = second;
+  return first;
+}
+
+Statement *BuildFunction(char *function_name, Parameter *params, Statement *body)
+{
+  Statement *result = (Statement *)malloc(sizeof(Statement));
+  if (NULL == result)
+    exit(-1);
+
+  result->Variable = function_name;
+  result->Type = FunctionDeclaration;
+  result->Left = body;
+  result->Params = params;
+
+  return result;
+}
+
+Statement *BuildFunctionCall(char *function_name, Parameter *values)
+{
+  Statement *result = (Statement *)malloc(sizeof(Statement));
+  if (NULL == result)
+    exit(-1);
+
+  result->Variable = function_name;
+  result->Type = FunctionCall;
+  result->Params = values;
 
   return result;
 }
@@ -345,6 +513,30 @@ BoolExpression *BuildBoolVariable(char *variable)
   return result;
 }
 
+PrintExpression *BuildPrintString(char *value)
+{
+  PrintExpression *result = (PrintExpression *)malloc(sizeof(PrintExpression));
+  if (NULL == result)
+    exit(-1);
+
+  result->Value = value;
+  result->Type = PrintString;
+
+  return result;
+}
+
+PrintExpression *BuildPrintVariable(char *variable)
+{
+  PrintExpression *result = (PrintExpression *)malloc(sizeof(PrintExpression));
+  if (NULL == result)
+    exit(-1);
+
+  result->Variable = variable;
+  result->Type = PrintVariable;
+
+  return result;
+}
+
 void FreeMemory()
 {
   Variable *iterator = Memory;
@@ -353,7 +545,6 @@ void FreeMemory()
     Variable *temp = iterator;
     iterator = iterator->Next;
 
-    free(temp->Value);
     free(temp);
   }
 }
@@ -366,13 +557,13 @@ Variable *GetVariable(char *name)
   Variable *result = Memory;
   while (NULL != result->Next)
   {
-    if (0 == strcmp(result->Name, name))
+    if (0 == strcmp(result->Name, name) && 0 == strcmp(result->Scope, currentScope))
       return result;
 
     result = result->Next;
   }
 
-  if (0 == strcmp(result->Name, name))
+  if (0 == strcmp(result->Name, name) && 0 == strcmp(result->Scope, currentScope))
     return result;
   return NULL;
 }
@@ -388,13 +579,13 @@ void SetVariable(char *name, char *value, VariableType type)
   Variable *result = Memory;
   while (NULL != result->Next)
   {
-    if (0 == strcmp(result->Name, name))
+    if (0 == strcmp(result->Name, name) && 0 == strcmp(result->Scope, currentScope))
       break;
 
     result = result->Next;
   }
 
-  if (0 == strcmp(result->Name, name))
+  if (0 == strcmp(result->Name, name) && 0 == strcmp(result->Scope, currentScope))
   {
     result->Value = value;
     return;
@@ -411,6 +602,7 @@ Variable *CreateVariable(char *name, char *value, VariableType type)
   result->Value = value;
   result->Next = NULL;
   result->Type = type;
+  result->Scope = currentScope;
 }
 
 void CreateNewVariable(char *name, char *value, VariableType type)
@@ -424,7 +616,7 @@ void CreateNewVariable(char *name, char *value, VariableType type)
     Variable *result = Memory;
     while (NULL != result->Next)
     {
-      if (0 == strcmp(result->Name, name))
+      if (0 == strcmp(result->Name, name) && 0 == strcmp(result->Scope, currentScope))
         break;
 
       result = result->Next;
@@ -434,7 +626,7 @@ void CreateNewVariable(char *name, char *value, VariableType type)
   }
 }
 
-char *EvaluateIntExpression(IntExpression *expression)//čia kažkas rimto vyksta. Tipo visi vieksmai su int ?
+char *EvaluateIntExpression(IntExpression *expression)
 {
   if (NULL == expression)
     return NULL;
@@ -524,6 +716,35 @@ char *EvaluateStringExpression(StringExpression *expression)
   return value;
 }
 
+void EvaluatePrintExpression(PrintExpression *expression)
+{
+  if (NULL == expression)
+    return;
+
+  Variable *variable;
+  char *p;
+  switch (expression->Type)
+  {
+  case PrintString:
+    p = expression->Value;
+    p++;
+    p[strlen(p) - 1] = 0;
+
+    printf("%s\n", p);
+    break;
+  case PrintVariable:
+    variable = GetVariable(expression->Variable);
+    if (variable == NULL)
+    {
+      printf("Error: variable %s undeclared\n", expression->Variable);
+      exit(-1);
+    }
+
+    printf("%s\n", variable->Value);
+    break;
+  }
+}
+
 int GetBoolValue(char *value)
 {
   if (value == "true")
@@ -548,7 +769,7 @@ char *GetBoolValueInt(int value)
   }
 }
 
-char *EvaluateBoolExpression(BoolExpression *expression)//cia tipo tas viduj ifo. returnina reiksme true ar false? 570 - 581 čia įrodo kad gražina tik true arba false
+char *EvaluateBoolExpression(BoolExpression *expression)
 {
   if (NULL == expression)
     return NULL;
@@ -621,14 +842,64 @@ char *EvaluateBoolExpression(BoolExpression *expression)//cia tipo tas viduj ifo
 
   return value;
 }
-//pirmas metodasi kuri kreipiasi main. po eilute eina ir vykdo speju
-void EvaluateStatement(Statement *statement)//tikrina kas per statement ir žiūri ką daryt kur siust toliau vykdyt.
+
+void EvaluateFunctionCall(Function *function, Statement *function_call)
+{
+  Parameter *param = function->Params;
+  Parameter *value = function_call->Params;
+  char *valuestr;
+  while (NULL != param)
+  {
+    if (param->Type != value->Type)
+    {
+      printf("Error: function param type is not accepted\n");
+      exit(-1);
+    }
+
+    if (value->Type == 0)
+    {
+      valuestr = EvaluateIntExpression(value->inte);
+    }
+    else if (value->Type == 1)
+    {
+      valuestr = EvaluateStringExpression(value->stringe);
+    }
+    else if (value->Type == 2)
+    {
+      valuestr = EvaluateBoolExpression(value->boole);
+    }
+
+    currentScope = function->FunctionName;
+    param->Value = valuestr;
+    Variable *var = GetVariable(param->Name);
+    if (var == NULL)
+    {
+      CreateNewVariable(param->Name, valuestr, param->Type);
+    }
+    else
+    {
+      SetVariable(param->Name, valuestr, param->Type);
+    }
+
+    currentScope = "global";
+
+    value = value->Next;
+    param = param->Next;
+  }
+
+  currentScope = function->FunctionName;
+  EvaluateStatement(function->Body);
+  currentScope = "global";
+}
+
+void EvaluateStatement(Statement *statement)
 {
   if (NULL == statement)
     return;
 
   char *value;
   Variable *exValue;
+  Function *function;
   switch (statement->Type)
   {
   case BoolDeclaration:
@@ -700,14 +971,7 @@ void EvaluateStatement(Statement *statement)//tikrina kas per statement ir žiū
     SetVariable(statement->Variable, value, INT);
     break;
   case Print:
-    exValue = GetVariable(statement->Variable);
-    if (exValue == NULL)
-    {
-      printf("Error: variable %s undeclared\n", statement->Variable);
-      exit(-1);
-    }
-
-    printf("%s\n", exValue->Value);
+    EvaluatePrintExpression(statement->PrintValue);
     break;
   case Sequence:
     EvaluateStatement(statement->Left);
@@ -731,19 +995,37 @@ void EvaluateStatement(Statement *statement)//tikrina kas per statement ir žiū
       EvaluateStatement(statement->Left);
       value = EvaluateBoolExpression(statement->BoolValue);
     }
-    
-    /*if (GetBoolValue(value) == 1)
-    {
-      EvaluateStatement(statement->Left);
-    }*/   
     break;
-  case Func:
-    //do stuff
+  case FunctionDeclaration:
+    if (currentScope != "global")
+    {
+      printf("Error: declaring functions inside functions is not allowed\n");
+      exit(-1);
+    }
+
+    function = GetFunction(statement->Variable);
+    if (function != NULL)
+    {
+      printf("Error: function %s is already declared\n", statement->Variable);
+      exit(-1);
+    }
+
+    CreateNewFunction(statement->Variable, statement->Params, statement->Left);
+    break;
+  case FunctionCall:
+    function = GetFunction(statement->Variable);
+    if (function == NULL)
+    {
+      printf("Error: function %s is undeclared\n", statement->Variable);
+      exit(-1);
+    }
+
+    EvaluateFunctionCall(function, statement);
     break;
   }
 }
 
-void DeleteIntExpression(IntExpression *expression)//atlaisvina atminti?
+void DeleteIntExpression(IntExpression *expression)
 {
   if (NULL == expression)
     return;
@@ -826,6 +1108,23 @@ void DeleteBoolExpression(BoolExpression *expression)
   free(expression);
 }
 
+void DeletePrintExpression(PrintExpression *expression)
+{
+  if (NULL == expression)
+    return;
+
+  switch (expression->Type)
+  {
+  case PrintString:
+    free(expression->Value);
+    break;
+  case PrintVariable:
+    free(expression->Variable);
+    break;
+  }
+  free(expression);
+}
+
 void DeleteStatement(Statement *statement)
 {
   if (NULL == statement)
@@ -860,7 +1159,16 @@ void DeleteStatement(Statement *statement)
     break;
 
   case Print:
-    free(statement->Variable);
+    DeletePrintExpression(statement->PrintValue);
+    break;
+  case Conditional:
+    DeleteBoolExpression(statement->BoolValue);
+    DeleteStatement(statement->Left);
+    DeleteStatement(statement->Right);
+    break;
+  case While:
+    DeleteBoolExpression(statement->BoolValue);
+    DeleteStatement(statement->Left);
     break;
   }
 

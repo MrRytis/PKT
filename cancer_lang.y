@@ -36,6 +36,8 @@ typedef void* yyscan_t;
   IntExpression *int_expression;
   BoolExpression *bool_expression;
   StringExpression *string_expression;
+  PrintExpression *print_expression;
+  Parameter *parameter;
   char* var_name;
   char* string;
   int value;
@@ -46,11 +48,12 @@ typedef void* yyscan_t;
 %type <int_expression> int_expression
 %type <bool_expression> bool_expression
 %type <string_expression> string_expression
+%type <print_expression> print_expression
+%type <parameter> parameters parameter param_value param_values
 
 %token TRUE FALSE
 %token TYPE_INT TYPE_STRING TYPE_BOOL
-%token PRINT IF WHILE L_CURL R_CURL ELSE
-%token FUNC
+%token PRINT IF L_CURL R_CURL ELSE WHILE FUNC COMMA
 %token LTEQ GTEQ LT GT EQUALS NOT AND OR
 %token L_PAREN R_PAREN STAR PLUS MINUS SLASH ASSIGNMENT ENDL
 %token <value> NUMBER
@@ -72,13 +75,32 @@ statement: ENDL { $$ = NULL; }
   | VAR_NAME ASSIGNMENT string_expression { $$ = BuildStringAssignment($1, $3); }
   | VAR_NAME ASSIGNMENT bool_expression { $$ = BuildBoolAssignment($1, $3); }
   | IF bool_expression L_CURL block R_CURL ENDL ELSE L_CURL block R_CURL { $$ = BuildConditional($4, $9, $2); }
-  | WHILE bool_expression L_CURL block R_CURL ENDL { $$ = BuildWhile($4, $2); }
-  | FUNC VAR_NAME '(' TYPE_INT VAR_NAME ')' L_CURL block R_CURL ENDL { $$ = BuilFunctionWithInt($2, $5, $7); }
-  | FUNC VAR_NAME '(' TYPE_STRING VAR_NAME ')' L_CURL block R_CURL ENDL { $$ = BuilFunctionWithString($2, $5, $7); }
-  | TYPE_INT VAR_NAME ASSIGNMENT funct_expression { $$ = BuildFunctionAssigmentInt($2, $4); }
-  | TYPE_STRING VAR_NAME ASSIGNMENT funct_expression { $$ = BuildFunctionAssigmentString($2, $4); }
-  | VAR_NAME ASSIGNMENT funct_expression { $$ = BuildFunctionAssigment($1, $4); }
-  | PRINT VAR_NAME { $$ = BuildPrint($2); }
+  | WHILE bool_expression L_CURL block R_CURL { $$ = BuildWhile($2, $4); }
+  | PRINT print_expression { $$ = BuildPrint($2); }
+  | FUNC VAR_NAME L_PAREN parameters R_PAREN L_CURL block R_CURL { $$ = BuildFunction($2, $4, $7); }
+  | VAR_NAME L_PAREN param_values R_PAREN { $$ = BuildFunctionCall($1, $3); }
+
+parameters:
+  parameter COMMA parameters { $$ = BuildParameterList($1, $3); }
+  | parameter { $$ = $1; }
+
+parameter:
+  TYPE_INT VAR_NAME { $$ = BuildParam($2, INT); }
+  | TYPE_STRING VAR_NAME { $$ = BuildParam($2, STRING); }
+  | TYPE_BOOL VAR_NAME { $$ = BuildParam($2, BOOL); }
+
+param_values: 
+  param_value COMMA param_values { $$ = BuildParameterList($1, $3); }
+  | param_value { $$ = $1; }
+
+param_value:
+  int_expression { $$ = BuildIntValueParam($1); }
+  | string_expression { $$ = BuildStringValueParam($1); }
+  | bool_expression { $$ = BuildBoolValueParam($1); }
+
+print_expression:
+  STRING_VAL { $$ = BuildPrintString($1); }
+  | VAR_NAME { $$ = BuildPrintVariable($1); }
 
 int_expression:
   NUMBER { $$ = BuildNumber($1); }
@@ -106,9 +128,5 @@ bool_expression:
   | bool_expression AND bool_expression { $$ = BuildAnd($1, $3); }
   | bool_expression OR bool_expression { $$ = BuildOr($1, $3); }
   | L_PAREN bool_expression R_PAREN { $$ = $2; }
-
-funct_expression:
-  | VAR_NAME { $$ = BuildFunctionExpresionEmpty($1); }
-  | VAR_NAME '(' VAR_NAME ')' { $$ = BuildFunctionExpresion($1, $3); }
 
 %%

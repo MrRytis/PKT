@@ -16,10 +16,10 @@ int main()
   }
 
   Statement *program = ParseFile(myfile);
-
   EvaluateStatement(program);
-  FreeMemory();
 
+  FreeMemory();
+  FreeFunctionMemory();
   DeleteStatement(program);
 
   return 0;
