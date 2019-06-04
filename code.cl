@@ -1,10 +1,10 @@
-func fibonacci(int n) {
-  int a = 0
-  int b = 1
-  int c = 0
-  int i = 2
+magic fibonacci(number n) {
+  number a = 0
+  number b = 1
+  number c = 0
+  number i = 2
 
-  while i <= n {
+  loop i <= n {
     c = a + b
     a = b
     b = c
@@ -12,9 +12,9 @@ func fibonacci(int n) {
     i = i + 1
   }
 
-  print n
-  print "fibonacci number is"
-  print b
+  spit n
+  spit "fibonacci number is"
+  spit b
 }
 
 fibonacci(15)

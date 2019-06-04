@@ -1,53 +1,51 @@
 %{
+#include <string.h>
 #include "cancer_lang.h"
 #include "parser.h"
-
-#include <string.h>
 %}
-
-%option outfile="lexer.c" header-file="lexer.h"
 
 %option reentrant noyywrap never-interactive nounistd
 %option bison-bridge
-
-WS [ \r\t]+
-
-NUMBER [0-9]
-WORD   [a-zA-Z][a-zA-Z0-9]*
-STRING \"(\\.|[^"\\])*\"
+%option outfile="lexer.c" header-file="lexer.h"
 
 %%
-{WS}                   ;
-"int"                  { return TYPE_INT; }
-"string"               { return TYPE_STRING; }
-"bool"                 { return TYPE_BOOL; }
-"print"                { return PRINT; }
-"true"                 { return TRUE; }
-"false"                { return FALSE; }
-"if"                   { return IF; }
-"while"                { return WHILE; }
-","                    { return COMMA; }
-"func"                 { return FUNC; }
-"{"                    { return L_CURL; }
-"}"                    { return R_CURL; }
-"else"                 { return ELSE; }
+
+"-"                    { return MIN; }
+"+"                    { return ADD; }
+"/"                    { return DIVIDE; }
+"*"                    { return MULTIPLY; }
+
 "=="                   { return EQUALS; }
 "!"                    { return NOT; }
 "&&"                   { return AND; }
 "||"                   { return OR; }
-"<="                   { return LTEQ; }
-">="                   { return GTEQ; }
+"<="                   { return LTE; }
+">="                   { return GTE; }
 "<"                    { return LT; }
 ">"                    { return GT; }
-"-"                    { return MINUS; }
-"/"                    { return SLASH; }
-"*"                    { return STAR; }
-"+"                    { return PLUS; }
-"("                    { return L_PAREN; }
-")"                    { return R_PAREN; }
+
+","                    { return COMMA; }
+"("                    { return BRACKET_LEFT; }
+")"                    { return BRACKET_RIGHT; }
 "="                    { return ASSIGNMENT; }
-{STRING}               { yylval->string = strdup(yytext); return STRING_VAL; } 
-{NUMBER}+              { yylval->value = atoi(yytext); return NUMBER; }
-{WORD}                 { yylval->var_name = strdup(yytext); return VAR_NAME; }
-\n                     { return ENDL; }
+"{"                    { return CURL_LEFT; }
+"}"                    { return CURL_RIGHT; }
+
+"true"                 { return TRUE; }
+"false"                { return FALSE; }
+
+"spit"                 { return PRINT; }
+"maybe"                { return IF; }
+"else"                 { return ELSE; }
+"loop"                 { return WHILE; }
+"magic"                { return FUNCTION; }
+
+"number"               { return INT_TYPE; }
+"word"                 { return STRING_TYPE; }
+"check"                { return BOOL_TYPE; }
+
+\"(\\.|[^"\\])*\"      { yylval->string = strdup(yytext); return WORD; } 
+[0-9]+                 { yylval->value = atoi(yytext); return NUMBER; }
+[a-zA-Z][a-zA-Z0-9]*   { yylval->var_name = strdup(yytext); return NAME; }
+\n                     { return END_LINE; }
 %%
