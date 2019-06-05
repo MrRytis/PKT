@@ -4,17 +4,17 @@ magic fibonacci(number n) {
   number c = 0
   number i = 2
 
-  loop i <= n {
+  loop i < n {
     c = a + b
     a = b
     b = c
   
     i = i + 1
   }
-
+  spit ""
   spit n
   spit "fibonacci number is"
   spit b
 }
 
-fibonacci(15)
+fibonacci(6)
