@@ -4,46 +4,46 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-typedef struct VariableStruct Variable;
-struct VariableStruct
+typedef struct SymbolStructure Symbol;
+struct SymbolStructure
 {
   char *Name;
   char *Value;
   VariableType Type;
-  Variable *Next;
+  Symbol *Upcoming;
   char *Scope;
 };
 
 char *currentScope = "global";
-Variable *Memory;
-Function *FuncMemory;
+Symbol *RAM;
+Magic *MagicRAM;
 
-Function *GetFunction(char *function_name)
+Magic *ReceiveMagic(char *magic_name)
 {
-  if (NULL == FuncMemory)
+  if (NULL == MagicRAM)
     return NULL;
 
-  Function *result = FuncMemory;
-  while (NULL != result->Next)
+  Magic *endpoint = MagicRAM;
+  while (NULL != endpoint->Upcoming)
   {
-    if (0 == strcmp(result->FunctionName, function_name))
-      return result;
+    if (0 == strcmp(endpoint->MagicName, magic_name))
+      return endpoint;
 
-    result = result->Next;
+    endpoint = endpoint->Upcoming;
   }
 
-  if (0 == strcmp(result->FunctionName, function_name))
-    return result;
+  if (0 == strcmp(endpoint->MagicName, magic_name))
+    return endpoint;
   return NULL;
 }
 
-void DeleteParameter(Parameter *parameter)
+void RemoveCharacteristic(Characteristic *characteristic)
 {
-  Parameter *iterator = parameter;
-  while (NULL != iterator)
+  Characteristic *pointer = characteristic;
+  while (NULL != pointer)
   {
-    Parameter *temp = iterator;
-    iterator = iterator->Next;
+    Characteristic *temp = pointer;
+    pointer = pointer->Upcoming;
 
     free(temp->Name);
     free(temp->Value);
@@ -51,342 +51,342 @@ void DeleteParameter(Parameter *parameter)
   }
 }
 
-void FreeFunctionMemory()
+void EmptyMagicRAM()
 {
-  Function *iterator = FuncMemory;
-  while (NULL != iterator)
+  Magic *pointer = MagicRAM;
+  while (NULL != pointer)
   {
-    Function *temp = iterator;
-    iterator = iterator->Next;
+    Magic *temp = pointer;
+    pointer = pointer->Upcoming;
 
     free(temp);
   }
 }
 
-Function *CreateFunction(char *name, Parameter *params, Statement *body)
+Magic *GenerateMagic(char *title, Characteristic *characteristics, Line *content)
 {
-  Function *result = (Function *)malloc(sizeof(Function));
-  if (NULL == result)
+  Magic *endpoint = (Magic *)malloc(sizeof(Magic));
+  if (NULL == endpoint)
     exit(-1);
 
-  result->FunctionName = name;
-  result->Next = NULL;
-  result->Body = body;
-  result->Params = params;
+  endpoint->MagicName = title;
+  endpoint->Upcoming = NULL;
+  endpoint->Content = content;
+  endpoint->Characteristics = characteristics;
 }
 
-void CreateNewFunction(char *name, Parameter *params, Statement *body)
+void GenerateNewMagic(char *title, Characteristic *characteristics, Line *content)
 {
-  if (NULL == FuncMemory)
+  if (NULL == MagicRAM)
   {
-    FuncMemory = CreateFunction(name, params, body);
+    MagicRAM = GenerateMagic(title, characteristics, content);
   }
   else
   {
-    Function *result = FuncMemory;
-    while (NULL != result->Next)
+    Magic *endpoint = MagicRAM;
+    while (NULL != endpoint->Upcoming)
     {
-      if (0 == strcmp(result->FunctionName, name))
+      if (0 == strcmp(endpoint->MagicName, title))
         break;
 
-      result = result->Next;
+      endpoint = endpoint->Upcoming;
     }
 
-    result->Next = CreateFunction(name, params, body);
+    endpoint->Upcoming = GenerateMagic(title, characteristics, content);
   }
 }
 
-Statement *BuildPrint(PrintExpression *variable)
+Line *Write(expWrite *symbol)
 {
-  Statement *result = (Statement *)malloc(sizeof(Statement));
-  if (NULL == result)
+  Line *endpoint = (Line *)malloc(sizeof(Line));
+  if (NULL == endpoint)
     exit(-1);
 
-  result->Type = Print;
-  result->PrintValue = variable;
+  endpoint->Type = Print;
+  endpoint->WriteText = symbol;
 
-  return result;
+  return endpoint;
 }
 
-Statement *BuildStatementSequence(Statement *first, Statement *second)
+Line *LineSeqGenerate(Line *primary, Line *secondary)
 {
-  Statement *result = (Statement *)malloc(sizeof(Statement));
-  if (NULL == result)
+  Line *endpoint = (Line *)malloc(sizeof(Line));
+  if (NULL == endpoint)
     exit(-1);
 
-  result->Type = Sequence;
-  result->Left = first;
-  result->Right = second;
+  endpoint->Type = Sequence;
+  endpoint->Left = primary;
+  endpoint->Right = secondary;
 
-  return result;
+  return endpoint;
 }
 
-Statement *BuildConditional(Statement *ifTrue, Statement *ifFalse, BoolExpression *condition)
+Line *GeneratePositiveNegative(Line *positive, Line *negative, expFlag *decider)
 {
-  Statement *result = (Statement *)malloc(sizeof(Statement));
-  if (NULL == result)
+  Line *endpoint = (Line *)malloc(sizeof(Line));
+  if (NULL == endpoint)
     exit(-1);
 
-  result->Type = Conditional;
-  result->Left = ifTrue;
-  result->Right = ifFalse;
-  result->BoolValue = condition;
+  endpoint->Type = Conditional;
+  endpoint->Left = positive;
+  endpoint->Right = negative;
+  endpoint->FlagVal = decider;
 
-  return result;
+  return endpoint;
 }
 
-Statement *BuildWhile(BoolExpression *condition, Statement *body)
+Line *GenerateLoop(expFlag *decider, Line *content)
 {
-  Statement *result = (Statement *)malloc(sizeof(Statement));
-  if (NULL == result)
+  Line *endpoint = (Line *)malloc(sizeof(Line));
+  if (NULL == endpoint)
     exit(-1);
 
-  result->Type = While;
-  result->Left = body;
-  result->BoolValue = condition;
+  endpoint->Type = While;
+  endpoint->Left = content;
+  endpoint->FlagVal = decider;
 
-  return result;
+  return endpoint;
 }
 
-Statement *BuildIntAssignment(char *variable, IntExpression *value)
+Line *GenerateNumericDefinition(char *symbol, expNumber *value)
 {
-  Statement *result = (Statement *)malloc(sizeof(Statement));
-  if (NULL == result)
+  Line *endpoint = (Line *)malloc(sizeof(Line));
+  if (NULL == endpoint)
     exit(-1);
 
-  result->Type = IntAssignment;
-  result->Variable = variable;
-  result->IntValue = value;
+  endpoint->Type = IntAssignment;
+  endpoint->Symbol = symbol;
+  endpoint->NumericVal = value;
 
-  return result;
+  return endpoint;
 }
 
-Statement *BuildStringAssignment(char *variable, StringExpression *value)
+Line *GenerateWordDefinition(char *symbol, expWord *value)
 {
-  Statement *result = (Statement *)malloc(sizeof(Statement));
-  if (NULL == result)
+  Line *endpoint = (Line *)malloc(sizeof(Line));
+  if (NULL == endpoint)
     exit(-1);
 
-  result->Type = StringAssignment;
-  result->Variable = variable;
-  result->StringValue = value;
+  endpoint->Type = StringAssignment;
+  endpoint->Symbol = symbol;
+  endpoint->StringValue = value;
 
-  return result;
+  return endpoint;
 }
 
-Statement *BuildBoolAssignment(char *variable, BoolExpression *value)
+Line *GenerateFlagDefinition(char *symbol, expFlag *value)
 {
-  Statement *result = (Statement *)malloc(sizeof(Statement));
-  if (NULL == result)
+  Line *endpoint = (Line *)malloc(sizeof(Line));
+  if (NULL == endpoint)
     exit(-1);
 
-  result->Type = BoolAssignment;
-  result->Variable = variable;
-  result->BoolValue = value;
+  endpoint->Type = BoolAssignment;
+  endpoint->Symbol = symbol;
+  endpoint->FlagVal = value;
 
-  return result;
+  return endpoint;
 }
 
-Statement *BuildIntDeclaration(char *variable, IntExpression *value)
+Line *GenerateNumericCreation(char *symbol, expNumber *value)
 {
-  Statement *result = (Statement *)malloc(sizeof(Statement));
-  if (NULL == result)
+  Line *endpoint = (Line *)malloc(sizeof(Line));
+  if (NULL == endpoint)
     exit(-1);
 
-  result->Type = IntDeclaration;
-  result->Variable = variable;
-  result->IntValue = value;
+  endpoint->Type = IntDeclaration;
+  endpoint->Symbol = symbol;
+  endpoint->NumericVal = value;
 
-  return result;
+  return endpoint;
 }
 
-Statement *BuildStringDeclaration(char *variable, StringExpression *value)
+Line *GenerateWordCreation(char *symbol, expWord *value)
 {
-  Statement *result = (Statement *)malloc(sizeof(Statement));
-  if (NULL == result)
+  Line *endpoint = (Line *)malloc(sizeof(Line));
+  if (NULL == endpoint)
     exit(-1);
 
-  result->Type = StringDeclaration;
-  result->Variable = variable;
-  result->StringValue = value;
+  endpoint->Type = StringDeclaration;
+  endpoint->Symbol = symbol;
+  endpoint->StringValue = value;
 
-  return result;
+  return endpoint;
 }
 
-Statement *BuildBoolDeclaration(char *variable, BoolExpression *value)
+Line *GenerateFlagCreation(char *symbol, expFlag *value)
 {
-  Statement *result = (Statement *)malloc(sizeof(Statement));
-  if (NULL == result)
+  Line *endpoint = (Line *)malloc(sizeof(Line));
+  if (NULL == endpoint)
     exit(-1);
 
-  result->Type = BoolDeclaration;
-  result->Variable = variable;
-  result->BoolValue = value;
+  endpoint->Type = BoolDeclaration;
+  endpoint->Symbol = symbol;
+  endpoint->FlagVal = value;
 
-  return result;
+  return endpoint;
 }
 
-Parameter *BuildParam(char *name, VariableType type)
+Characteristic *GenerateCharacteristic(char *title, VariableType type)
 {
-  Parameter *result = (Parameter *)malloc(sizeof(Parameter));
-  if (NULL == result)
+  Characteristic *endpoint = (Characteristic *)malloc(sizeof(Characteristic));
+  if (NULL == endpoint)
     exit(-1);
 
-  result->Type = type;
-  result->Name = name;
-  result->Next = NULL;
+  endpoint->Type = type;
+  endpoint->Name = title;
+  endpoint->Upcoming = NULL;
 
-  return result;
+  return endpoint;
 }
 
-Parameter *BuildIntValueParam(IntExpression *expression)
+Characteristic *GenerateNumericExpCharacteritic(expNumber *exp)
 {
-  Parameter *result = (Parameter *)malloc(sizeof(Parameter));
-  if (NULL == result)
+  Characteristic *endpoint = (Characteristic *)malloc(sizeof(Characteristic));
+  if (NULL == endpoint)
     exit(-1);
 
-  result->Type = INT;
-  result->inte = expression;
-  result->Next = NULL;
+  endpoint->Type = INT;
+  endpoint->inte = exp;
+  endpoint->Upcoming = NULL;
 
-  return result;
+  return endpoint;
 }
 
-Parameter *BuildStringValueParam(StringExpression *expression)
+Characteristic *GenerateWordExpCharacteritic(expWord *exp)
 {
-  Parameter *result = (Parameter *)malloc(sizeof(Parameter));
-  if (NULL == result)
+  Characteristic *endpoint = (Characteristic *)malloc(sizeof(Characteristic));
+  if (NULL == endpoint)
     exit(-1);
 
-  result->Type = STRING;
-  result->stringe = expression;
-  result->Next = NULL;
+  endpoint->Type = STRING;
+  endpoint->stringe = exp;
+  endpoint->Upcoming = NULL;
 
-  return result;
+  return endpoint;
 }
 
-Parameter *BuildBoolValueParam(BoolExpression *expression)
+Characteristic *GenerateFlagExpCharacteritic(expFlag *exp)
 {
-  Parameter *result = (Parameter *)malloc(sizeof(Parameter));
-  if (NULL == result)
+  Characteristic *endpoint = (Characteristic *)malloc(sizeof(Characteristic));
+  if (NULL == endpoint)
     exit(-1);
 
-  result->Type = BOOL;
-  result->boole = expression;
-  result->Next = NULL;
+  endpoint->Type = BOOL;
+  endpoint->boole = exp;
+  endpoint->Upcoming = NULL;
 
-  return result;
+  return endpoint;
 }
 
-Parameter *BuildParameterList(Parameter *first, Parameter *second)
+Characteristic *GenerateCharacteristics(Characteristic *primary, Characteristic *secondary)
 {
-  if (NULL == first || NULL == second)
+  if (NULL == primary || NULL == secondary)
     exit(-1);
 
-  first->Next = second;
-  return first;
+  primary->Upcoming = secondary;
+  return primary;
 }
 
-Statement *BuildFunction(char *function_name, Parameter *params, Statement *body)
+Line *NewMagic(char *magic_name, Characteristic *characteristics, Line *content)
 {
-  Statement *result = (Statement *)malloc(sizeof(Statement));
-  if (NULL == result)
+  Line *endpoint = (Line *)malloc(sizeof(Line));
+  if (NULL == endpoint)
     exit(-1);
 
-  result->Variable = function_name;
-  result->Type = FunctionDeclaration;
-  result->Left = body;
-  result->Params = params;
+  endpoint->Symbol = magic_name;
+  endpoint->Type = FunctionDeclaration;
+  endpoint->Left = content;
+  endpoint->Characteristics = characteristics;
 
-  return result;
+  return endpoint;
 }
 
-Statement *BuildFunctionCall(char *function_name, Parameter *values)
+Line *GenerateMagicShout(char *magic_name, Characteristic *values)
 {
-  Statement *result = (Statement *)malloc(sizeof(Statement));
-  if (NULL == result)
+  Line *endpoint = (Line *)malloc(sizeof(Line));
+  if (NULL == endpoint)
     exit(-1);
 
-  result->Variable = function_name;
-  result->Type = FunctionCall;
-  result->Params = values;
+  endpoint->Symbol = magic_name;
+  endpoint->Type = FunctionCall;
+  endpoint->Characteristics = values;
 
-  return result;
+  return endpoint;
 }
 
-IntExpression *BuildNumber(int number)
+expNumber *GenerateNumeric(int number)
 {
-  IntExpression *result = (IntExpression *)malloc(sizeof(IntExpression));
-  if (NULL == result)
+  expNumber *endpoint = (expNumber *)malloc(sizeof(expNumber));
+  if (NULL == endpoint)
     exit(-1);
 
   char str[10];
   snprintf(str, 10, "%d", number);
 
-  result->Type = IntLiteral;
-  result->Value = strdup(str);
+  endpoint->Type = IntLiteral;
+  endpoint->Value = strdup(str);
 
-  return result;
+  return endpoint;
 }
 
-IntExpression *BuildInfixArithmeticOp(IntExpression *left, IntExpression *right, IntExpressionType type)
+expNumber *GenerateNumericUniversal(expNumber *left, expNumber *right, IntExpressionType type)
 {
-  IntExpression *result = (IntExpression *)malloc(sizeof(IntExpression));
-  if (NULL == result)
+  expNumber *endpoint = (expNumber *)malloc(sizeof(expNumber));
+  if (NULL == endpoint)
     exit(-1);
 
-  result->Type = type;
-  result->Left = left;
-  result->Right = right;
+  endpoint->Type = type;
+  endpoint->Left = left;
+  endpoint->Right = right;
 
-  return result;
+  return endpoint;
 }
 
-IntExpression *BuildSum(IntExpression *left, IntExpression *right)
+expNumber *GenerateAddition(expNumber *left, expNumber *right)
 {
-  return BuildInfixArithmeticOp(left, right, Addition);
+  return GenerateNumericUniversal(left, right, Addition);
 }
 
-IntExpression *BuildDifference(IntExpression *left, IntExpression *right)
+expNumber *GenerateSubtraction(expNumber *left, expNumber *right)
 {
-  return BuildInfixArithmeticOp(left, right, Subtraction);
+  return GenerateNumericUniversal(left, right, Subtraction);
 }
 
-IntExpression *BuildMultiplication(IntExpression *left, IntExpression *right)
+expNumber *GenerateMulExpression(expNumber *left, expNumber *right)
 {
-  return BuildInfixArithmeticOp(left, right, Multiplication);
+  return GenerateNumericUniversal(left, right, Multiplication);
 }
 
-IntExpression *BuildDivision(IntExpression *left, IntExpression *right)
+expNumber *GenerateDivExpression(expNumber *left, expNumber *right)
 {
-  return BuildInfixArithmeticOp(left, right, Division);
+  return GenerateNumericUniversal(left, right, Division);
 }
 
-StringExpression *BuildString(char *string)
+expWord *GenerateWord(char *xword)
 {
-  StringExpression *result = (StringExpression *)malloc(sizeof(StringExpression));
-  if (NULL == result)
+  expWord *endpoint = (expWord *)malloc(sizeof(expWord));
+  if (NULL == endpoint)
     exit(-1);
 
-  char *p = string;
+  char *p = xword;
   p++;
   p[strlen(p) - 1] = 0;
 
-  result->Type = StringLiteral;
-  result->Value = p;
+  endpoint->Type = StringLiteral;
+  endpoint->Value = p;
 
-  return result;
+  return endpoint;
 }
 
-BoolExpression *BuildBool(int bool)
+expFlag *GenerateFlag(int flag)
 {
-  BoolExpression *result = (BoolExpression *)malloc(sizeof(BoolExpression));
-  if (NULL == result)
+  expFlag *endpoint = (expFlag *)malloc(sizeof(expFlag));
+  if (NULL == endpoint)
     exit(-1);
 
   char *value;
 
-  if (bool == 1)
+  if (flag == 1)
   {
     value = "true";
   }
@@ -395,240 +395,240 @@ BoolExpression *BuildBool(int bool)
     value = "false";
   }
 
-  result->Type = BoolLiteral;
-  result->Value = value;
+  endpoint->Type = BoolLiteral;
+  endpoint->Value = value;
 
-  return result;
+  return endpoint;
 }
 
-BoolExpression *BuildArithmeticComparison(IntExpression *left, IntExpression *right, BoolExpressionType type)
+expFlag *GenerateNumericCmpUniversal(expNumber *left, expNumber *right, BoolExpressionType type)
 {
-  BoolExpression *result = (BoolExpression *)malloc(sizeof(BoolExpression));
-  if (NULL == result)
+  expFlag *endpoint = (expFlag *)malloc(sizeof(expFlag));
+  if (NULL == endpoint)
     exit(-1);
 
-  result->Type = type;
-  result->IntLeft = left;
-  result->IntRight = right;
+  endpoint->Type = type;
+  endpoint->IntLeft = left;
+  endpoint->IntRight = right;
 
-  return result;
+  return endpoint;
 }
 
-BoolExpression *BuildEquals(IntExpression *left, IntExpression *right)
+expFlag *GenerateNumericEven(expNumber *left, expNumber *right)
 {
-  return BuildArithmeticComparison(left, right, Equals);
+  return GenerateNumericCmpUniversal(left, right, Equals);
 }
 
-BoolExpression *BuildLessOrEquals(IntExpression *left, IntExpression *right)
+expFlag *GenerateNumericEvenLess(expNumber *left, expNumber *right)
 {
-  return BuildArithmeticComparison(left, right, LessEquals);
+  return GenerateNumericCmpUniversal(left, right, LessEquals);
 }
 
-BoolExpression *BuildMoreOrEquals(IntExpression *left, IntExpression *right)
+expFlag *GenerateNumericEvenGreater(expNumber *left, expNumber *right)
 {
-  return BuildArithmeticComparison(left, right, MoreEquals);
+  return GenerateNumericCmpUniversal(left, right, MoreEquals);
 }
 
-BoolExpression *BuildLess(IntExpression *left, IntExpression *right)
+expFlag *GenerateNumericLower(expNumber *left, expNumber *right)
 {
-  return BuildArithmeticComparison(left, right, Less);
+  return GenerateNumericCmpUniversal(left, right, Less);
 }
 
-BoolExpression *BuildMore(IntExpression *left, IntExpression *right)
+expFlag *GenerateNumericGreater(expNumber *left, expNumber *right)
 {
-  return BuildArithmeticComparison(left, right, More);
+  return GenerateNumericCmpUniversal(left, right, More);
 }
 
-BoolExpression *BuildNot(BoolExpression *value)
+expFlag *GenerateNumericInvariant(expFlag *value)
 {
-  BoolExpression *result = (BoolExpression *)malloc(sizeof(BoolExpression));
-  if (NULL == result)
+  expFlag *endpoint = (expFlag *)malloc(sizeof(expFlag));
+  if (NULL == endpoint)
     exit(-1);
 
-  result->Type = Not;
-  result->Left = value;
+  endpoint->Type = Not;
+  endpoint->Left = value;
 
-  return result;
+  return endpoint;
 }
 
-BoolExpression *BuildAnd(BoolExpression *left, BoolExpression *right)
+expFlag *GenerateNumericWith(expFlag *left, expFlag *right)
 {
-  BoolExpression *result = (BoolExpression *)malloc(sizeof(BoolExpression));
-  if (NULL == result)
+  expFlag *endpoint = (expFlag *)malloc(sizeof(expFlag));
+  if (NULL == endpoint)
     exit(-1);
 
-  result->Type = And;
-  result->Left = left;
-  result->Right = right;
+  endpoint->Type = And;
+  endpoint->Left = left;
+  endpoint->Right = right;
 
-  return result;
+  return endpoint;
 }
 
-BoolExpression *BuildOr(BoolExpression *left, BoolExpression *right)
+expFlag *GenerateNumericEither(expFlag *left, expFlag *right)
 {
-  BoolExpression *result = (BoolExpression *)malloc(sizeof(BoolExpression));
-  if (NULL == result)
+  expFlag *endpoint = (expFlag *)malloc(sizeof(expFlag));
+  if (NULL == endpoint)
     exit(-1);
 
-  result->Type = Or;
-  result->Left = left;
-  result->Right = right;
+  endpoint->Type = Or;
+  endpoint->Left = left;
+  endpoint->Right = right;
 
-  return result;
+  return endpoint;
 }
 
-IntExpression *BuildIntVariable(char *variable)
+expNumber *GenerateNumericSymbol(char *symbol)
 {
-  IntExpression *result = (IntExpression *)malloc(sizeof(IntExpression));
-  if (NULL == result)
+  expNumber *endpoint = (expNumber *)malloc(sizeof(expNumber));
+  if (NULL == endpoint)
     exit(-1);
 
-  result->Variable = variable;
-  result->Type = IntVariable;
+  endpoint->Symbol = symbol;
+  endpoint->Type = IntVariable;
 
-  return result;
+  return endpoint;
 }
 
-StringExpression *BuildStringVariable(char *variable)
+expWord *GenerateWordSymbol(char *symbol)
 {
-  StringExpression *result = (StringExpression *)malloc(sizeof(StringExpression));
-  if (NULL == result)
+  expWord *endpoint = (expWord *)malloc(sizeof(expWord));
+  if (NULL == endpoint)
     exit(-1);
 
-  result->Variable = variable;
-  result->Type = StringVariable;
+  endpoint->Symbol = symbol;
+  endpoint->Type = StringVariable;
 
-  return result;
+  return endpoint;
 }
 
-BoolExpression *BuildBoolVariable(char *variable)
+expFlag *GenerateFlagSymbol(char *symbol)
 {
-  BoolExpression *result = (BoolExpression *)malloc(sizeof(BoolExpression));
-  if (NULL == result)
+  expFlag *endpoint = (expFlag *)malloc(sizeof(expFlag));
+  if (NULL == endpoint)
     exit(-1);
 
-  result->Variable = variable;
-  result->Type = BoolVariable;
+  endpoint->Symbol = symbol;
+  endpoint->Type = BoolVariable;
 
-  return result;
+  return endpoint;
 }
 
-PrintExpression *BuildPrintString(char *value)
+expWrite *GenerateWriteWord(char *value)
 {
-  PrintExpression *result = (PrintExpression *)malloc(sizeof(PrintExpression));
-  if (NULL == result)
+  expWrite *endpoint = (expWrite *)malloc(sizeof(expWrite));
+  if (NULL == endpoint)
     exit(-1);
 
-  result->Value = value;
-  result->Type = PrintString;
+  endpoint->Value = value;
+  endpoint->Type = PrintString;
 
-  return result;
+  return endpoint;
 }
 
-PrintExpression *BuildPrintVariable(char *variable)
+expWrite *GenerateWriteSymbol(char *symbol)
 {
-  PrintExpression *result = (PrintExpression *)malloc(sizeof(PrintExpression));
-  if (NULL == result)
+  expWrite *endpoint = (expWrite *)malloc(sizeof(expWrite));
+  if (NULL == endpoint)
     exit(-1);
 
-  result->Variable = variable;
-  result->Type = PrintVariable;
+  endpoint->Symbol = symbol;
+  endpoint->Type = PrintVariable;
 
-  return result;
+  return endpoint;
 }
 
-void FreeMemory()
+void EmptyRAM()
 {
-  Variable *iterator = Memory;
-  while (NULL != iterator)
+  Symbol *pointer = RAM;
+  while (NULL != pointer)
   {
-    Variable *temp = iterator;
-    iterator = iterator->Next;
+    Symbol *temp = pointer;
+    pointer = pointer->Upcoming;
 
     free(temp);
   }
 }
 
-Variable *GetVariable(char *name)
+Symbol *ReceiveSymbol(char *title)
 {
-  if (NULL == Memory)
+  if (NULL == RAM)
     return NULL;
 
-  Variable *result = Memory;
-  while (NULL != result->Next)
+  Symbol *endpoint = RAM;
+  while (NULL != endpoint->Upcoming)
   {
-    if (0 == strcmp(result->Name, name) && 0 == strcmp(result->Scope, currentScope))
-      return result;
+    if (0 == strcmp(endpoint->Name, title) && 0 == strcmp(endpoint->Scope, currentScope))
+      return endpoint;
 
-    result = result->Next;
+    endpoint = endpoint->Upcoming;
   }
 
-  if (0 == strcmp(result->Name, name) && 0 == strcmp(result->Scope, currentScope))
-    return result;
+  if (0 == strcmp(endpoint->Name, title) && 0 == strcmp(endpoint->Scope, currentScope))
+    return endpoint;
   return NULL;
 }
 
-void SetVariable(char *name, char *value, VariableType type)
+void InsertSymbol(char *title, char *value, VariableType type)
 {
-  if (NULL == Memory)
+  if (NULL == RAM)
   {
-    printf("Error: variable %s does not exist", name);
+    printf("Error: symbol %s does not exist", title);
     exit(-1);
   }
 
-  Variable *result = Memory;
-  while (NULL != result->Next)
+  Symbol *endpoint = RAM;
+  while (NULL != endpoint->Upcoming)
   {
-    if (0 == strcmp(result->Name, name) && 0 == strcmp(result->Scope, currentScope))
+    if (0 == strcmp(endpoint->Name, title) && 0 == strcmp(endpoint->Scope, currentScope))
       break;
 
-    result = result->Next;
+    endpoint = endpoint->Upcoming;
   }
 
-  if (0 == strcmp(result->Name, name) && 0 == strcmp(result->Scope, currentScope))
+  if (0 == strcmp(endpoint->Name, title) && 0 == strcmp(endpoint->Scope, currentScope))
   {
-    result->Value = value;
+    endpoint->Value = value;
     return;
   }
 }
 
-Variable *CreateVariable(char *name, char *value, VariableType type)
+Symbol *GenerateSymbol(char *title, char *value, VariableType type)
 {
-  Variable *result = (Variable *)malloc(sizeof(Variable));
-  if (NULL == result)
+  Symbol *endpoint = (Symbol *)malloc(sizeof(Symbol));
+  if (NULL == endpoint)
     exit(-1);
 
-  result->Name = name;
-  result->Value = value;
-  result->Next = NULL;
-  result->Type = type;
-  result->Scope = currentScope;
+  endpoint->Name = title;
+  endpoint->Value = value;
+  endpoint->Upcoming = NULL;
+  endpoint->Type = type;
+  endpoint->Scope = currentScope;
 }
 
-void CreateNewVariable(char *name, char *value, VariableType type)
+void GenerateNewSymbol(char *title, char *value, VariableType type)
 {
-  if (NULL == Memory)
+  if (NULL == RAM)
   {
-    Memory = CreateVariable(name, value, type);
+    RAM = GenerateSymbol(title, value, type);
   }
   else
   {
-    Variable *result = Memory;
-    while (NULL != result->Next)
+    Symbol *endpoint = RAM;
+    while (NULL != endpoint->Upcoming)
     {
-      if (0 == strcmp(result->Name, name) && 0 == strcmp(result->Scope, currentScope))
+      if (0 == strcmp(endpoint->Name, title) && 0 == strcmp(endpoint->Scope, currentScope))
         break;
 
-      result = result->Next;
+      endpoint = endpoint->Upcoming;
     }
 
-    result->Next = CreateVariable(name, value, type);
+    endpoint->Upcoming = GenerateSymbol(title, value, type);
   }
 }
 
-char *EvaluateIntExpression(IntExpression *expression)
+char *ProcessExpNumeric(expNumber *exp)
 {
-  if (NULL == expression)
+  if (NULL == exp)
     return NULL;
 
   char *value;
@@ -636,39 +636,39 @@ char *EvaluateIntExpression(IntExpression *expression)
   char temp[10];
   int left;
   int right;
-  Variable *variable;
+  Symbol *symbol;
 
-  switch (expression->Type)
+  switch (exp->Type)
   {
   case IntLiteral:
-    value = expression->Value;
+    value = exp->Value;
     break;
   case IntVariable:
-    variable = GetVariable(expression->Variable);
-    if (variable == NULL)
+    symbol = ReceiveSymbol(exp->Symbol);
+    if (symbol == NULL)
     {
-      printf("Error: variable %s undeclared\n", expression->Variable);
+      printf("Error: symbol %s undeclared\n", exp->Symbol);
       exit(-1);
     }
-    value = variable->Value;
+    value = symbol->Value;
     break;
   case Multiplication:
-    left = atoi(EvaluateIntExpression(expression->Left));
-    right = atoi(EvaluateIntExpression(expression->Right));
+    left = atoi(ProcessExpNumeric(exp->Left));
+    right = atoi(ProcessExpNumeric(exp->Right));
 
     snprintf(temp, 10, "%d", left * right);
     value = strdup(temp);
     break;
   case Subtraction:
-    left = atoi(EvaluateIntExpression(expression->Left));
-    right = atoi(EvaluateIntExpression(expression->Right));
+    left = atoi(ProcessExpNumeric(exp->Left));
+    right = atoi(ProcessExpNumeric(exp->Right));
 
     snprintf(temp, 10, "%d", left - right);
     value = strdup(temp);
     break;
   case Division:
-    left = atoi(EvaluateIntExpression(expression->Left));
-    right = atoi(EvaluateIntExpression(expression->Right));
+    left = atoi(ProcessExpNumeric(exp->Left));
+    right = atoi(ProcessExpNumeric(exp->Right));
     if (right == 0)
     {
       printf("Error: divison by zero\n");
@@ -679,8 +679,8 @@ char *EvaluateIntExpression(IntExpression *expression)
     value = strdup(temp);
     break;
   case Addition:
-    left = atoi(EvaluateIntExpression(expression->Left));
-    right = atoi(EvaluateIntExpression(expression->Right));
+    left = atoi(ProcessExpNumeric(exp->Left));
+    right = atoi(ProcessExpNumeric(exp->Right));
 
     snprintf(temp, 10, "%d", left + right);
     value = strdup(temp);
@@ -690,62 +690,62 @@ char *EvaluateIntExpression(IntExpression *expression)
   return value;
 }
 
-char *EvaluateStringExpression(StringExpression *expression)
+char *ProcessExpWord(expWord *exp)
 {
-  if (NULL == expression)
+  if (NULL == exp)
     return NULL;
 
   char *value;
-  Variable *variable;
-  switch (expression->Type)
+  Symbol *symbol;
+  switch (exp->Type)
   {
   case StringLiteral:
-    value = expression->Value;
+    value = exp->Value;
     break;
   case StringVariable:
-    variable = GetVariable(expression->Variable);
-    if (variable == NULL)
+    symbol = ReceiveSymbol(exp->Symbol);
+    if (symbol == NULL)
     {
-      printf("Error: variable %s undeclared\n", expression->Variable);
+      printf("Error: symbol %s undeclared\n", exp->Symbol);
       exit(-1);
     }
-    value = variable->Value;
+    value = symbol->Value;
     break;
   }
 
   return value;
 }
 
-void EvaluatePrintExpression(PrintExpression *expression)
+void ProcessExpWrite(expWrite *exp)
 {
-  if (NULL == expression)
+  if (NULL == exp)
     return;
 
-  Variable *variable;
+  Symbol *symbol;
   char *p;
-  switch (expression->Type)
+  switch (exp->Type)
   {
   case PrintString:
-    p = expression->Value;
+    p = exp->Value;
     p++;
     p[strlen(p) - 1] = 0;
 
     printf("%s\n", p);
     break;
   case PrintVariable:
-    variable = GetVariable(expression->Variable);
-    if (variable == NULL)
+    symbol = ReceiveSymbol(exp->Symbol);
+    if (symbol == NULL)
     {
-      printf("Error: variable %s undeclared\n", expression->Variable);
+      printf("Error: symbol %s undeclared\n", exp->Symbol);
       exit(-1);
     }
 
-    printf("%s\n", variable->Value);
+    printf("%s\n", symbol->Value);
     break;
   }
 }
 
-int GetBoolValue(char *value)
+int ReceiveFlagVal(char *value)
 {
   if (value == "true")
   {
@@ -757,7 +757,7 @@ int GetBoolValue(char *value)
   }
 }
 
-char *GetBoolValueInt(int value)
+char *ReceiveNumericFlagVal(int value)
 {
   if (value == 1)
   {
@@ -769,40 +769,40 @@ char *GetBoolValueInt(int value)
   }
 }
 
-char *EvaluateBoolExpression(BoolExpression *expression)
+char *ProcessExpFlag(expFlag *exp)
 {
-  if (NULL == expression)
+  if (NULL == exp)
     return NULL;
 
   char *value;
   int temp;
-  Variable *variable;
-  switch (expression->Type)
+  Symbol *symbol;
+  switch (exp->Type)
   {
   case BoolLiteral:
-    value = expression->Value;
+    value = exp->Value;
     break;
   case BoolVariable:
-    variable = GetVariable(expression->Variable);
-    if (variable == NULL)
+    symbol = ReceiveSymbol(exp->Symbol);
+    if (symbol == NULL)
     {
-      printf("Error: variable %s undeclared\n", expression->Variable);
+      printf("Error: symbol %s undeclared\n", exp->Symbol);
       exit(-1);
     }
-    value = variable->Value;
+    value = symbol->Value;
     break;
   case Equals:
-    temp = atoi(EvaluateIntExpression(expression->IntLeft)) == atoi(EvaluateIntExpression(expression->IntRight));
+    temp = atoi(ProcessExpNumeric(exp->IntLeft)) == atoi(ProcessExpNumeric(exp->IntRight));
 
-    value = GetBoolValueInt(temp);
+    value = ReceiveNumericFlagVal(temp);
     break;
   case And:
-    temp = GetBoolValue(EvaluateBoolExpression(expression->Left)) && GetBoolValue(EvaluateBoolExpression(expression->Right));
+    temp = ReceiveFlagVal(ProcessExpFlag(exp->Left)) && ReceiveFlagVal(ProcessExpFlag(exp->Right));
 
-    value = GetBoolValueInt(temp);
+    value = ReceiveNumericFlagVal(temp);
     break;
   case Not:
-    temp = GetBoolValue(EvaluateBoolExpression(expression->Left));
+    temp = ReceiveFlagVal(ProcessExpFlag(exp->Left));
 
     if (temp == 1)
     {
@@ -814,39 +814,39 @@ char *EvaluateBoolExpression(BoolExpression *expression)
     }
     break;
   case Or:
-    temp = GetBoolValue(EvaluateBoolExpression(expression->Left)) || GetBoolValue(EvaluateBoolExpression(expression->Right));
+    temp = ReceiveFlagVal(ProcessExpFlag(exp->Left)) || ReceiveFlagVal(ProcessExpFlag(exp->Right));
 
-    value = GetBoolValueInt(temp);
+    value = ReceiveNumericFlagVal(temp);
     break;
   case Less:
-    temp = atoi(EvaluateIntExpression(expression->IntLeft)) < atoi(EvaluateIntExpression(expression->IntRight));
+    temp = atoi(ProcessExpNumeric(exp->IntLeft)) < atoi(ProcessExpNumeric(exp->IntRight));
 
-    value = GetBoolValueInt(temp);
+    value = ReceiveNumericFlagVal(temp);
     break;
   case More:
-    temp = atoi(EvaluateIntExpression(expression->IntLeft)) > atoi(EvaluateIntExpression(expression->IntRight));
+    temp = atoi(ProcessExpNumeric(exp->IntLeft)) > atoi(ProcessExpNumeric(exp->IntRight));
 
-    value = GetBoolValueInt(temp);
+    value = ReceiveNumericFlagVal(temp);
     break;
   case MoreEquals:
-    temp = atoi(EvaluateIntExpression(expression->IntLeft)) >= atoi(EvaluateIntExpression(expression->IntRight));
+    temp = atoi(ProcessExpNumeric(exp->IntLeft)) >= atoi(ProcessExpNumeric(exp->IntRight));
 
-    value = GetBoolValueInt(temp);
+    value = ReceiveNumericFlagVal(temp);
     break;
   case LessEquals:
-    temp = atoi(EvaluateIntExpression(expression->IntLeft)) <= atoi(EvaluateIntExpression(expression->IntRight));
+    temp = atoi(ProcessExpNumeric(exp->IntLeft)) <= atoi(ProcessExpNumeric(exp->IntRight));
 
-    value = GetBoolValueInt(temp);
+    value = ReceiveNumericFlagVal(temp);
     break;
   }
 
   return value;
 }
 
-void EvaluateFunctionCall(Function *function, Statement *function_call)
+void ProcessMagicShout(Magic *function, Line *function_call)
 {
-  Parameter *param = function->Params;
-  Parameter *value = function_call->Params;
+  Characteristic *param = function->Characteristics;
+  Characteristic *value = function_call->Characteristics;
   char *valuestr;
   while (NULL != param)
   {
@@ -858,142 +858,142 @@ void EvaluateFunctionCall(Function *function, Statement *function_call)
 
     if (value->Type == 0)
     {
-      valuestr = EvaluateIntExpression(value->inte);
+      valuestr = ProcessExpNumeric(value->inte);
     }
     else if (value->Type == 1)
     {
-      valuestr = EvaluateStringExpression(value->stringe);
+      valuestr = ProcessExpWord(value->stringe);
     }
     else if (value->Type == 2)
     {
-      valuestr = EvaluateBoolExpression(value->boole);
+      valuestr = ProcessExpFlag(value->boole);
     }
 
-    currentScope = function->FunctionName;
+    currentScope = function->MagicName;
     param->Value = valuestr;
-    Variable *var = GetVariable(param->Name);
+    Symbol *var = ReceiveSymbol(param->Name);
     if (var == NULL)
     {
-      CreateNewVariable(param->Name, valuestr, param->Type);
+      GenerateNewSymbol(param->Name, valuestr, param->Type);
     }
     else
     {
-      SetVariable(param->Name, valuestr, param->Type);
+      InsertSymbol(param->Name, valuestr, param->Type);
     }
 
     currentScope = "global";
 
-    value = value->Next;
-    param = param->Next;
+    value = value->Upcoming;
+    param = param->Upcoming;
   }
 
-  currentScope = function->FunctionName;
-  EvaluateStatement(function->Body);
+  currentScope = function->MagicName;
+  ProcessLine(function->Content);
   currentScope = "global";
 }
 
-void EvaluateStatement(Statement *statement)
+void ProcessLine(Line *line)
 {
-  if (NULL == statement)
+  if (NULL == line)
     return;
 
   char *value;
-  Variable *exValue;
-  Function *function;
-  switch (statement->Type)
+  Symbol *exValue;
+  Magic *function;
+  switch (line->Type)
   {
   case BoolDeclaration:
-    value = EvaluateBoolExpression(statement->BoolValue);
-    exValue = GetVariable(statement->Variable);
+    value = ProcessExpFlag(line->FlagVal);
+    exValue = ReceiveSymbol(line->Symbol);
     if (exValue == NULL)
     {
-      CreateNewVariable(statement->Variable, value, BOOL);
+      GenerateNewSymbol(line->Symbol, value, BOOL);
       break;
     }
-    printf("Error: variable %s already declared\n", statement->Variable);
+    printf("Error: symbol %s already declared\n", line->Symbol);
     exit(-1);
     break;
 
   case IntDeclaration:
-    value = EvaluateIntExpression(statement->IntValue);
-    exValue = GetVariable(statement->Variable);
+    value = ProcessExpNumeric(line->NumericVal);
+    exValue = ReceiveSymbol(line->Symbol);
     if (exValue == NULL)
     {
-      CreateNewVariable(statement->Variable, value, INT);
+      GenerateNewSymbol(line->Symbol, value, INT);
       break;
     }
-    printf("Error: variable %s already declared\n", statement->Variable);
+    printf("Error: symbol %s already declared\n", line->Symbol);
     exit(-1);
     break;
 
   case StringDeclaration:
-    value = EvaluateStringExpression(statement->StringValue);
-    exValue = GetVariable(statement->Variable);
+    value = ProcessExpWord(line->StringValue);
+    exValue = ReceiveSymbol(line->Symbol);
     if (exValue == NULL)
     {
-      CreateNewVariable(statement->Variable, value, STRING);
+      GenerateNewSymbol(line->Symbol, value, STRING);
       break;
     }
-    printf("Error: variable %s already declared\n", statement->Variable);
+    printf("Error: symbol %s already declared\n", line->Symbol);
     exit(-1);
     break;
 
   case BoolAssignment:
-    value = EvaluateBoolExpression(statement->BoolValue);
-    exValue = GetVariable(statement->Variable);
+    value = ProcessExpFlag(line->FlagVal);
+    exValue = ReceiveSymbol(line->Symbol);
     if (exValue == NULL)
     {
-      printf("Error: variable %s undeclared\n", statement->Variable);
+      printf("Error: symbol %s undeclared\n", line->Symbol);
       exit(-1);
     }
-    SetVariable(statement->Variable, value, BOOL);
+    InsertSymbol(line->Symbol, value, BOOL);
     break;
 
   case IntAssignment:
-    value = EvaluateIntExpression(statement->IntValue);
-    exValue = GetVariable(statement->Variable);
+    value = ProcessExpNumeric(line->NumericVal);
+    exValue = ReceiveSymbol(line->Symbol);
     if (exValue == NULL)
     {
-      printf("Error: variable %s undeclared\n", statement->Variable);
+      printf("Error: symbol %s undeclared\n", line->Symbol);
       exit(-1);
     }
-    SetVariable(statement->Variable, value, INT);
+    InsertSymbol(line->Symbol, value, INT);
     break;
 
   case StringAssignment:
-    value = EvaluateStringExpression(statement->StringValue);
-    exValue = GetVariable(statement->Variable);
+    value = ProcessExpWord(line->StringValue);
+    exValue = ReceiveSymbol(line->Symbol);
     if (exValue == NULL)
     {
-      printf("Error: variable %s undeclared\n", statement->Variable);
+      printf("Error: symbol %s undeclared\n", line->Symbol);
       exit(-1);
     }
-    SetVariable(statement->Variable, value, INT);
+    InsertSymbol(line->Symbol, value, INT);
     break;
   case Print:
-    EvaluatePrintExpression(statement->PrintValue);
+    ProcessExpWrite(line->WriteText);
     break;
   case Sequence:
-    EvaluateStatement(statement->Left);
-    EvaluateStatement(statement->Right);
+    ProcessLine(line->Left);
+    ProcessLine(line->Right);
     break;
   case Conditional:
-    value = EvaluateBoolExpression(statement->BoolValue);
-    if (GetBoolValue(value) == 1)
+    value = ProcessExpFlag(line->FlagVal);
+    if (ReceiveFlagVal(value) == 1)
     {
-      EvaluateStatement(statement->Left);
+      ProcessLine(line->Left);
     }
     else
     {
-      EvaluateStatement(statement->Right);
+      ProcessLine(line->Right);
     }
     break;
   case While:
-    value = EvaluateBoolExpression(statement->BoolValue);
-    while (GetBoolValue(value) == 1)
+    value = ProcessExpFlag(line->FlagVal);
+    while (ReceiveFlagVal(value) == 1)
     {
-      EvaluateStatement(statement->Left);
-      value = EvaluateBoolExpression(statement->BoolValue);
+      ProcessLine(line->Left);
+      value = ProcessExpFlag(line->FlagVal);
     }
     break;
   case FunctionDeclaration:
@@ -1003,174 +1003,174 @@ void EvaluateStatement(Statement *statement)
       exit(-1);
     }
 
-    function = GetFunction(statement->Variable);
+    function = ReceiveMagic(line->Symbol);
     if (function != NULL)
     {
-      printf("Error: function %s is already declared\n", statement->Variable);
+      printf("Error: function %s is already declared\n", line->Symbol);
       exit(-1);
     }
 
-    CreateNewFunction(statement->Variable, statement->Params, statement->Left);
+    GenerateNewMagic(line->Symbol, line->Characteristics, line->Left);
     break;
   case FunctionCall:
-    function = GetFunction(statement->Variable);
+    function = ReceiveMagic(line->Symbol);
     if (function == NULL)
     {
-      printf("Error: function %s is undeclared\n", statement->Variable);
+      printf("Error: function %s is undeclared\n", line->Symbol);
       exit(-1);
     }
 
-    EvaluateFunctionCall(function, statement);
+    ProcessMagicShout(function, line);
     break;
   }
 }
 
-void DeleteIntExpression(IntExpression *expression)
+void RemoveExpNumeric(expNumber *exp)
 {
-  if (NULL == expression)
+  if (NULL == exp)
     return;
 
-  switch (expression->Type)
+  switch (exp->Type)
   {
   case IntLiteral:
-    free(expression->Value);
+    free(exp->Value);
     break;
   case IntVariable:
-    free(expression->Variable);
+    free(exp->Symbol);
     break;
   case Subtraction:
-    DeleteIntExpression(expression->Left);
-    DeleteIntExpression(expression->Right);
+    RemoveExpNumeric(exp->Left);
+    RemoveExpNumeric(exp->Right);
     break;
   case Division:
-    DeleteIntExpression(expression->Left);
-    DeleteIntExpression(expression->Right);
+    RemoveExpNumeric(exp->Left);
+    RemoveExpNumeric(exp->Right);
     break;
   case Addition:
-    DeleteIntExpression(expression->Left);
-    DeleteIntExpression(expression->Right);
+    RemoveExpNumeric(exp->Left);
+    RemoveExpNumeric(exp->Right);
     break;
   case Multiplication:
-    DeleteIntExpression(expression->Left);
-    DeleteIntExpression(expression->Right);
+    RemoveExpNumeric(exp->Left);
+    RemoveExpNumeric(exp->Right);
     break;
   }
-  free(expression);
+  free(exp);
 }
 
-void DeleteStringExpression(StringExpression *expression)
+void RemoveExpWord(expWord *exp)
 {
-  if (NULL == expression)
+  if (NULL == exp)
     return;
 
-  switch (expression->Type)
+  switch (exp->Type)
   {
   case StringLiteral:
-    free(expression->Value);
+    free(exp->Value);
     break;
   case StringVariable:
-    free(expression->Variable);
+    free(exp->Symbol);
     break;
   }
-  free(expression);
+  free(exp);
 }
 
-void DeleteBoolExpression(BoolExpression *expression)
+void RemoveExpFlag(expFlag *exp)
 {
-  if (NULL == expression)
+  if (NULL == exp)
     return;
 
-  switch (expression->Type)
+  switch (exp->Type)
   {
   case BoolLiteral:
-    free(expression->Value);
+    free(exp->Value);
     break;
   case BoolVariable:
-    free(expression->Variable);
+    free(exp->Symbol);
     break;
   case Or:
   case And:
-    DeleteBoolExpression(expression->Left);
-    DeleteBoolExpression(expression->Right);
+    RemoveExpFlag(exp->Left);
+    RemoveExpFlag(exp->Right);
     break;
   case Not:
-    DeleteBoolExpression(expression->Left);
+    RemoveExpFlag(exp->Left);
     break;
   case Equals:
   case Less:
   case More:
   case MoreEquals:
   case LessEquals:
-    DeleteIntExpression(expression->IntLeft);
-    DeleteIntExpression(expression->IntRight);
+    RemoveExpNumeric(exp->IntLeft);
+    RemoveExpNumeric(exp->IntRight);
     break;
   }
-  free(expression);
+  free(exp);
 }
 
-void DeletePrintExpression(PrintExpression *expression)
+void RemoveExpWrite(expWrite *exp)
 {
-  if (NULL == expression)
+  if (NULL == exp)
     return;
 
-  switch (expression->Type)
+  switch (exp->Type)
   {
   case PrintString:
-    free(expression->Value);
+    free(exp->Value);
     break;
   case PrintVariable:
-    free(expression->Variable);
+    free(exp->Symbol);
     break;
   }
-  free(expression);
+  free(exp);
 }
 
-void DeleteStatement(Statement *statement)
+void RemoveLine(Line *line)
 {
-  if (NULL == statement)
+  if (NULL == line)
     return;
 
-  switch (statement->Type)
+  switch (line->Type)
   {
   case StringAssignment:
   case StringDeclaration:
-    DeleteStringExpression(statement->StringValue);
-    if (NULL != statement->Variable)
-      free(statement->Variable);
+    RemoveExpWord(line->StringValue);
+    if (NULL != line->Symbol)
+      free(line->Symbol);
     break;
 
   case BoolAssignment:
   case BoolDeclaration:
-    DeleteBoolExpression(statement->BoolValue);
-    if (NULL != statement->Variable)
-      free(statement->Variable);
+    RemoveExpFlag(line->FlagVal);
+    if (NULL != line->Symbol)
+      free(line->Symbol);
     break;
 
   case IntAssignment:
   case IntDeclaration:
-    DeleteIntExpression(statement->IntValue);
-    if (NULL != statement->Variable)
-      free(statement->Variable);
+    RemoveExpNumeric(line->NumericVal);
+    if (NULL != line->Symbol)
+      free(line->Symbol);
     break;
 
   case Sequence:
-    DeleteStatement(statement->Left);
-    DeleteStatement(statement->Right);
+    RemoveLine(line->Left);
+    RemoveLine(line->Right);
     break;
 
   case Print:
-    DeletePrintExpression(statement->PrintValue);
+    RemoveExpWrite(line->WriteText);
     break;
   case Conditional:
-    DeleteBoolExpression(statement->BoolValue);
-    DeleteStatement(statement->Left);
-    DeleteStatement(statement->Right);
+    RemoveExpFlag(line->FlagVal);
+    RemoveLine(line->Left);
+    RemoveLine(line->Right);
     break;
   case While:
-    DeleteBoolExpression(statement->BoolValue);
-    DeleteStatement(statement->Left);
+    RemoveExpFlag(line->FlagVal);
+    RemoveLine(line->Left);
     break;
   }
 
-  free(statement);
+  free(line);
 }

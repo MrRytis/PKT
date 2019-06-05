@@ -10,7 +10,7 @@ typedef enum VariableTypeEnum
     BOOL
 } VariableType;
 
-typedef enum IntExpressionTypeEnum
+typedef enum NumerableExpNumberType
 {
     IntLiteral,
     IntVariable,
@@ -20,33 +20,33 @@ typedef enum IntExpressionTypeEnum
     Division
 } IntExpressionType;
 
-typedef struct IntExpressionStruct IntExpression;
-struct IntExpressionStruct
+typedef struct expNumericStructure expNumber;
+struct expNumericStructure
 {
     IntExpressionType Type;
-    IntExpression *Left;
-    IntExpression *Right;
-    char *Variable;
+    expNumber *Left;
+    expNumber *Right;
+    char *Symbol;
     char *Value;
 };
 
-typedef enum StringExpressionTypeEnum
+typedef enum NumerableExpWordType
 {
     StringLiteral,
     StringVariable
 } StringExpressionType;
 
-typedef struct StringExpressionStruct StringExpression;
-struct StringExpressionStruct
+typedef struct expWordStructure expWord;
+struct expWordStructure
 {
     StringExpressionType Type;
-    StringExpression *left;
-    StringExpression *right;
-    char *Variable;
+    expWord *left;
+    expWord *right;
+    char *Symbol;
     char *Value;
 };
 
-typedef enum BoolExpressionTypeEnum
+typedef enum NumerableExpFlagType
 {
     BoolLiteral,
     BoolVariable,
@@ -60,19 +60,19 @@ typedef enum BoolExpressionTypeEnum
     MoreEquals
 } BoolExpressionType;
 
-typedef struct BoolExpressionStruct BoolExpression;
-struct BoolExpressionStruct
+typedef struct expFlagStructure expFlag;
+struct expFlagStructure
 {
     BoolExpressionType Type;
-    BoolExpression *Left;
-    BoolExpression *Right;
-    IntExpression *IntLeft;
-    IntExpression *IntRight;
-    char *Variable;
+    expFlag *Left;
+    expFlag *Right;
+    expNumber *IntLeft;
+    expNumber *IntRight;
+    char *Symbol;
     char *Value;
 };
 
-typedef enum StatementTypeEnum
+typedef enum LineTypes
 {
     IntDeclaration,
     StringDeclaration,
@@ -86,113 +86,113 @@ typedef enum StatementTypeEnum
     While,
     FunctionDeclaration,
     FunctionCall
-} StatementType;
+} LineType;
 
-typedef enum PrintExpresssionTypeEnum
+typedef enum NumericExpWriteType
 {
     PrintString,
     PrintVariable
 } PrintExpresssionType;
 
-typedef struct PrintExpressionStruct PrintExpression;
-struct PrintExpressionStruct
+typedef struct NumericExpWriteStructure expWrite;
+struct NumericExpWriteStructure
 {
     PrintExpresssionType Type;
-    char *Variable;
+    char *Symbol;
     char *Value;
 };
 
-typedef struct ParameterStruct Parameter;
-struct ParameterStruct
+typedef struct CharacteristicsStructure Characteristic;
+struct CharacteristicsStructure
 {
-    BoolExpression *boole;
-    IntExpression *inte;
-    StringExpression *stringe;
+    expFlag *boole;
+    expNumber *inte;
+    expWord *stringe;
     VariableType Type;
-    Parameter *Next;
+    Characteristic *Upcoming;
     char *Name;
     char *Value;
 };
 
-typedef struct StatementStruct Statement;
-struct StatementStruct
+typedef struct LineStructure Line;
+struct LineStructure
 {
-    StatementType Type;
-    Statement *Left;
-    Statement *Right;
-    IntExpression *IntValue;
-    BoolExpression *BoolValue;
-    StringExpression *StringValue;
-    PrintExpression *PrintValue;
-    Parameter *Params;
-    char *Variable;
+    LineType Type;
+    Line *Left;
+    Line *Right;
+    expNumber *NumericVal;
+    expFlag *FlagVal;
+    expWord *StringValue;
+    expWrite *WriteText;
+    Characteristic *Characteristics;
+    char *Symbol;
 };
 
-typedef struct FunctionStruct Function;
-struct FunctionStruct
+typedef struct MagicStructure Magic;
+struct MagicStructure
 {
-    Parameter *Params;
-    char *FunctionName;
-    Statement *Body;
-    Function *Next;
+    Characteristic *Characteristics;
+    char *MagicName;
+    Line *Content;
+    Magic *Upcoming;
 };
 
-Statement *BuildIntAssignment(char *variable, IntExpression *value);
-Statement *BuildStringAssignment(char *variable, StringExpression *value);
-Statement *BuildBoolAssignment(char *variable, BoolExpression *value);
+Line *GenerateNumericDefinition(char *variable, expNumber *value);
+Line *GenerateWordDefinition(char *variable, expWord *value);
+Line *GenerateFlagDefinition(char *variable, expFlag *value);
 
-Statement *BuildIntDeclaration(char *variable, IntExpression *value);
-Statement *BuildStringDeclaration(char *variable, StringExpression *value);
-Statement *BuildBoolDeclaration(char *variable, BoolExpression *value);
+Line *GenerateNumericCreation(char *variable, expNumber *value);
+Line *GenerateWordCreation(char *variable, expWord *value);
+Line *GenerateFlagCreation(char *variable, expFlag *value);
 
-Statement *BuildPrint(PrintExpression *variable);
-Statement *BuildStatementSequence(Statement *first, Statement *second);
-Statement *BuildConditional(Statement *ifTrue, Statement *ifFalse, BoolExpression *condition);
-Statement *BuildWhile(BoolExpression *condition, Statement *body);
-Statement *BuildFunction(char *function_name, Parameter *params, Statement *body);
-Statement *BuildFunctionCall(char *function_name, Parameter *values);
+Line *Write(expWrite *variable);
+Line *LineSeqGenerate(Line *first, Line *second);
+Line *GeneratePositiveNegative(Line *ifTrue, Line *ifFalse, expFlag *condition);
+Line *GenerateLoop(expFlag *condition, Line *body);
+Line *NewMagic(char *function_name, Characteristic *params, Line *body);
+Line *GenerateMagicShout(char *function_name, Characteristic *values);
 
-Parameter *BuildParam(char *name, VariableType type);
-Parameter *BuildParameterList(Parameter *first, Parameter *second);
+Characteristic *GenerateCharacteristic(char *name, VariableType type);
+Characteristic *GenerateCharacteristics(Characteristic *first, Characteristic *second);
 
-Parameter *BuildIntValueParam(IntExpression *expression);
-Parameter *BuildStringValueParam(StringExpression *expression);
-Parameter *BuildBoolValueParam(BoolExpression *expression);
+Characteristic *GenerateNumericExpCharacteritic(expNumber *expression);
+Characteristic *GenerateWordExpCharacteritic(expWord *expression);
+Characteristic *GenerateFlagExpCharacteritic(expFlag *expression);
 
-PrintExpression *BuildPrintString(char *value);
-PrintExpression *BuildPrintVariable(char *variable);
+expWrite *GenerateWriteWord(char *value);
+expWrite *GenerateWriteSymbol(char *variable);
 
-IntExpression *BuildNumber(int number);
-IntExpression *BuildSum(IntExpression *left, IntExpression *right);
-IntExpression *BuildDifference(IntExpression *left, IntExpression *right);
-IntExpression *BuildMultiplication(IntExpression *left, IntExpression *right);
-IntExpression *BuildDivision(IntExpression *left, IntExpression *right);
-IntExpression *BuildIntVariable(char *variable);
+expNumber *GenerateNumeric(int number);
+expNumber *GenerateAddition(expNumber *left, expNumber *right);
+expNumber *GenerateSubtraction(expNumber *left, expNumber *right);
+expNumber *GenerateMulExpression(expNumber *left, expNumber *right);
+expNumber *GenerateDivExpression(expNumber *left, expNumber *right);
+expNumber *GenerateNumericSymbol(char *variable);
 
-StringExpression *BuildString(char *string);
-StringExpression *BuildStringVariable(char *variable);
+expWord *GenerateWord(char *string);
+expWord *GenerateWordSymbol(char *variable);
 
-BoolExpression *BuildBool(int bool);
-BoolExpression *BuildBoolVariable(char *variable);
-BoolExpression *BuildEquals(IntExpression *left, IntExpression *right);
-BoolExpression *BuildLessOrEquals(IntExpression *left, IntExpression *right);
-BoolExpression *BuildMoreOrEquals(IntExpression *left, IntExpression *right);
-BoolExpression *BuildLess(IntExpression *left, IntExpression *right);
-BoolExpression *BuildMore(IntExpression *left, IntExpression *right);
-BoolExpression *BuildNot(BoolExpression *value);
-BoolExpression *BuildAnd(BoolExpression *left, BoolExpression *right);
-BoolExpression *BuildOr(BoolExpression *left, BoolExpression *right);
+expFlag *GenerateFlag(int bool);
+expFlag *GenerateFlagSymbol(char *variable);
+expFlag *GenerateNumericEven(expNumber *left, expNumber *right);
+expFlag *GenerateNumericEvenLess(expNumber *left, expNumber *right);
+expFlag *GenerateNumericEvenGreater(expNumber *left, expNumber *right);
+expFlag *GenerateNumericLower(expNumber *left, expNumber *right);
+expFlag *GenerateNumericGreater(expNumber *left, expNumber *right);
+expFlag *GenerateNumericInvariant(expFlag *value);
+expFlag *GenerateNumericWith(expFlag *left, expFlag *right);
+expFlag *GenerateNumericEither(expFlag *left, expFlag *right);
 
-void DeleteStatement(Statement *statement);
-void DeleteArithmeticExpression(IntExpression *expression);
+void RemoveLine(Line *line);
+void RemoveExpNumericMathematics(expNumber *expression);
 
-void FreeMemory();
-void FreeFunctionMemory();
+void EmptyRAM();
+void EmptyMagicRAM();
 
-void EvaluateStatement(Statement *statement);
+void ProcessLine(Line *line);
 
-char *EvaluateIntExpression(IntExpression *expression);
-char *EvaluateStringExpression(StringExpression *expression);
-char *EvaluateBoolExpression(BoolExpression *expression);
+char *ProcessExpNumeric(expNumber *expression);
+char *ProcessExpWord(expWord *expression);
+char *ProcessExpFlag(expFlag *expression);
 
 #endif

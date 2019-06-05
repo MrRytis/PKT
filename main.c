@@ -4,8 +4,8 @@
 
 #include <stdio.h>
 
-int yyparse(Statement **program, yyscan_t scanner);
-Statement* ParseFile(FILE* file);
+int yyparse(Line **program, yyscan_t scanner);
+Line* ParseFile(FILE* file);
 
 int main()
 {
@@ -15,19 +15,19 @@ int main()
     return -1;
   }
 
-  Statement *program = ParseFile(myfile);
-  EvaluateStatement(program);
+  Line *program = ParseFile(myfile);
+  ProcessLine(program);
 
-  FreeMemory();
-  FreeFunctionMemory();
-  DeleteStatement(program);
+  EmptyRAM();
+  EmptyMagicRAM();
+  RemoveLine(program);
 
   return 0;
 }
 
-Statement* ParseFile(FILE* file)
+Line* ParseFile(FILE* file)
 {
-  Statement *statement;
+  Line *statement;
   yyscan_t scanner;
   YY_BUFFER_STATE state;
 
