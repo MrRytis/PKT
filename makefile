@@ -1,8 +1,8 @@
 clc:
-	flex cancer_lang.l
-	bison cancer_lang.y
-	gcc lexer.c parser.c cancer_lang.c main.c -o cancer_lang
-	./cancer_lang code.cl
+	flex cmm.l
+	bison cmm.y
+	gcc l.c p.c cmm.c main.c -o compiler
+	./compiler code.cl
 
 clean :
-	del lexer.h lexer.c parser.h parser.c cancer_lang.exe
+	del l.h l.c p.h p.c compiler

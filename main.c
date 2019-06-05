@@ -1,6 +1,6 @@
-#include "cancer_lang.h"
-#include "parser.h"
-#include "lexer.h"
+#include "cmm.h"
+#include "p.h"
+#include "l.h"
 
 #include <stdio.h>
 
