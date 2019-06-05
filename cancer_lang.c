@@ -8,13 +8,13 @@ typedef struct SymbolStructure Symbol;
 struct SymbolStructure
 {
   char *Name;
-  char *Value;
-  VariableType Type;
+  char *Worth;
+  SymbolicTp kind;
   Symbol *Upcoming;
-  char *Scope;
+  char *Range;
 };
 
-char *currentScope = "global";
+char *crntRange = "global";
 Symbol *RAM;
 Magic *MagicRAM;
 
@@ -46,7 +46,7 @@ void RemoveCharacteristic(Characteristic *characteristic)
     pointer = pointer->Upcoming;
 
     free(temp->Name);
-    free(temp->Value);
+    free(temp->Worth);
     free(temp);
   }
 }
@@ -102,19 +102,19 @@ Line *Write(expWrite *symbol)
   if (NULL == endpoint)
     exit(-1);
 
-  endpoint->Type = Print;
+  endpoint->kind = Print;
   endpoint->WriteText = symbol;
 
   return endpoint;
 }
 
-Line *LineSeqGenerate(Line *primary, Line *secondary)
+Line *LineChainGenerate(Line *primary, Line *secondary)
 {
   Line *endpoint = (Line *)malloc(sizeof(Line));
   if (NULL == endpoint)
     exit(-1);
 
-  endpoint->Type = Sequence;
+  endpoint->kind = Chain;
   endpoint->Left = primary;
   endpoint->Right = secondary;
 
@@ -127,7 +127,7 @@ Line *GeneratePositiveNegative(Line *positive, Line *negative, expFlag *decider)
   if (NULL == endpoint)
     exit(-1);
 
-  endpoint->Type = Conditional;
+  endpoint->kind = Restrictive;
   endpoint->Left = positive;
   endpoint->Right = negative;
   endpoint->FlagVal = decider;
@@ -141,98 +141,98 @@ Line *GenerateLoop(expFlag *decider, Line *content)
   if (NULL == endpoint)
     exit(-1);
 
-  endpoint->Type = While;
+  endpoint->kind = Loop;
   endpoint->Left = content;
   endpoint->FlagVal = decider;
 
   return endpoint;
 }
 
-Line *GenerateNumericDefinition(char *symbol, expNumber *value)
+Line *GenerateNumericDefinition(char *symbol, expNumber *data)
 {
   Line *endpoint = (Line *)malloc(sizeof(Line));
   if (NULL == endpoint)
     exit(-1);
 
-  endpoint->Type = IntAssignment;
+  endpoint->kind = NumericDefinition;
   endpoint->Symbol = symbol;
-  endpoint->NumericVal = value;
+  endpoint->NumericVal = data;
 
   return endpoint;
 }
 
-Line *GenerateWordDefinition(char *symbol, expWord *value)
+Line *GenerateWordDefinition(char *symbol, expWord *data)
 {
   Line *endpoint = (Line *)malloc(sizeof(Line));
   if (NULL == endpoint)
     exit(-1);
 
-  endpoint->Type = StringAssignment;
+  endpoint->kind = WordDefinition;
   endpoint->Symbol = symbol;
-  endpoint->StringValue = value;
+  endpoint->WordWorth = data;
 
   return endpoint;
 }
 
-Line *GenerateFlagDefinition(char *symbol, expFlag *value)
+Line *GenerateFlagDefinition(char *symbol, expFlag *data)
 {
   Line *endpoint = (Line *)malloc(sizeof(Line));
   if (NULL == endpoint)
     exit(-1);
 
-  endpoint->Type = BoolAssignment;
+  endpoint->kind = FlagDefinition;
   endpoint->Symbol = symbol;
-  endpoint->FlagVal = value;
+  endpoint->FlagVal = data;
 
   return endpoint;
 }
 
-Line *GenerateNumericCreation(char *symbol, expNumber *value)
+Line *GenerateNumericCreation(char *symbol, expNumber *data)
 {
   Line *endpoint = (Line *)malloc(sizeof(Line));
   if (NULL == endpoint)
     exit(-1);
 
-  endpoint->Type = IntDeclaration;
+  endpoint->kind = CreateNumeric;
   endpoint->Symbol = symbol;
-  endpoint->NumericVal = value;
+  endpoint->NumericVal = data;
 
   return endpoint;
 }
 
-Line *GenerateWordCreation(char *symbol, expWord *value)
+Line *GenerateWordCreation(char *symbol, expWord *data)
 {
   Line *endpoint = (Line *)malloc(sizeof(Line));
   if (NULL == endpoint)
     exit(-1);
 
-  endpoint->Type = StringDeclaration;
+  endpoint->kind = CreateWord;
   endpoint->Symbol = symbol;
-  endpoint->StringValue = value;
+  endpoint->WordWorth = data;
 
   return endpoint;
 }
 
-Line *GenerateFlagCreation(char *symbol, expFlag *value)
+Line *GenerateFlagCreation(char *symbol, expFlag *data)
 {
   Line *endpoint = (Line *)malloc(sizeof(Line));
   if (NULL == endpoint)
     exit(-1);
 
-  endpoint->Type = BoolDeclaration;
+  endpoint->kind = CreateFlag;
   endpoint->Symbol = symbol;
-  endpoint->FlagVal = value;
+  endpoint->FlagVal = data;
 
   return endpoint;
 }
 
-Characteristic *GenerateCharacteristic(char *title, VariableType type)
+Characteristic *GenerateCharacteristic(char *title, SymbolicTp kind)
 {
   Characteristic *endpoint = (Characteristic *)malloc(sizeof(Characteristic));
   if (NULL == endpoint)
     exit(-1);
 
-  endpoint->Type = type;
+  endpoint->kind = kind;
   endpoint->Name = title;
   endpoint->Upcoming = NULL;
 
@@ -245,7 +245,7 @@ Characteristic *GenerateNumericExpCharacteritic(expNumber *exp)
   if (NULL == endpoint)
     exit(-1);
 
-  endpoint->Type = INT;
+  endpoint->kind = numeric;
   endpoint->inte = exp;
   endpoint->Upcoming = NULL;
 
@@ -258,7 +258,7 @@ Characteristic *GenerateWordExpCharacteritic(expWord *exp)
   if (NULL == endpoint)
     exit(-1);
 
-  endpoint->Type = STRING;
+  endpoint->kind = word;
   endpoint->stringe = exp;
   endpoint->Upcoming = NULL;
 
@@ -271,7 +271,7 @@ Characteristic *GenerateFlagExpCharacteritic(expFlag *exp)
   if (NULL == endpoint)
     exit(-1);
 
-  endpoint->Type = BOOL;
+  endpoint->kind = flag;
   endpoint->boole = exp;
   endpoint->Upcoming = NULL;
 
@@ -294,22 +294,22 @@ Line *NewMagic(char *magic_name, Characteristic *characteristics, Line *content)
     exit(-1);
 
   endpoint->Symbol = magic_name;
-  endpoint->Type = FunctionDeclaration;
+  endpoint->kind = MagicDefinition;
   endpoint->Left = content;
   endpoint->Characteristics = characteristics;
 
   return endpoint;
 }
 
-Line *GenerateMagicShout(char *magic_name, Characteristic *values)
+Line *GenerateMagicShout(char *magic_name, Characteristic *worths)
 {
   Line *endpoint = (Line *)malloc(sizeof(Line));
   if (NULL == endpoint)
     exit(-1);
 
   endpoint->Symbol = magic_name;
-  endpoint->Type = FunctionCall;
-  endpoint->Characteristics = values;
+  endpoint->kind = MagicShout;
+  endpoint->Characteristics = worths;
 
   return endpoint;
 }
@@ -320,22 +320,22 @@ expNumber *GenerateNumeric(int number)
   if (NULL == endpoint)
     exit(-1);
 
-  char str[10];
-  snprintf(str, 10, "%d", number);
+  char wrd[10];
+  snprintf(wrd, 10, "%d", number);
 
-  endpoint->Type = IntLiteral;
-  endpoint->Value = strdup(str);
+  endpoint->kind = numericData;
+  endpoint->Worth = strdup(wrd);
 
   return endpoint;
 }
 
-expNumber *GenerateNumericUniversal(expNumber *left, expNumber *right, IntExpressionType type)
+expNumber *GenerateNumericUniversal(expNumber *left, expNumber *right, expNumericTp kind)
 {
   expNumber *endpoint = (expNumber *)malloc(sizeof(expNumber));
   if (NULL == endpoint)
     exit(-1);
 
-  endpoint->Type = type;
+  endpoint->kind = kind;
   endpoint->Left = left;
   endpoint->Right = right;
 
@@ -344,22 +344,22 @@ expNumber *GenerateNumericUniversal(expNumber *left, expNumber *right, IntExpres
 
 expNumber *GenerateAddition(expNumber *left, expNumber *right)
 {
-  return GenerateNumericUniversal(left, right, Addition);
+  return GenerateNumericUniversal(left, right, Plus);
 }
 
 expNumber *GenerateSubtraction(expNumber *left, expNumber *right)
 {
-  return GenerateNumericUniversal(left, right, Subtraction);
+  return GenerateNumericUniversal(left, right, Minus);
 }
 
 expNumber *GenerateMulExpression(expNumber *left, expNumber *right)
 {
-  return GenerateNumericUniversal(left, right, Multiplication);
+  return GenerateNumericUniversal(left, right, MathMul);
 }
 
 expNumber *GenerateDivExpression(expNumber *left, expNumber *right)
 {
-  return GenerateNumericUniversal(left, right, Division);
+  return GenerateNumericUniversal(left, right, MathSplitEvenGroup);
 }
 
 expWord *GenerateWord(char *xword)
@@ -372,8 +372,8 @@ expWord *GenerateWord(char *xword)
   p++;
   p[strlen(p) - 1] = 0;
 
-  endpoint->Type = StringLiteral;
-  endpoint->Value = p;
+  endpoint->kind = wordValue;
+  endpoint->Worth = p;
 
   return endpoint;
 }
@@ -384,69 +384,69 @@ expFlag *GenerateFlag(int flag)
   if (NULL == endpoint)
     exit(-1);
 
-  char *value;
+  char *data;
 
   if (flag == 1)
   {
-    value = "true";
+    data = "true";
   }
   else
   {
-    value = "false";
+    data = "false";
   }
 
-  endpoint->Type = BoolLiteral;
-  endpoint->Value = value;
+  endpoint->kind = flagData;
+  endpoint->Worth = data;
 
   return endpoint;
 }
 
-expFlag *GenerateNumericCmpUniversal(expNumber *left, expNumber *right, BoolExpressionType type)
+expFlag *GenerateNumericCmpUniversal(expNumber *left, expNumber *right, expFlagTp kind)
 {
   expFlag *endpoint = (expFlag *)malloc(sizeof(expFlag));
   if (NULL == endpoint)
     exit(-1);
 
-  endpoint->Type = type;
-  endpoint->IntLeft = left;
-  endpoint->IntRight = right;
+  endpoint->kind = kind;
+  endpoint->numericLeft = left;
+  endpoint->numericRight = right;
 
   return endpoint;
 }
 
 expFlag *GenerateNumericEven(expNumber *left, expNumber *right)
 {
-  return GenerateNumericCmpUniversal(left, right, Equals);
+  return GenerateNumericCmpUniversal(left, right, Even);
 }
 
 expFlag *GenerateNumericEvenLess(expNumber *left, expNumber *right)
 {
-  return GenerateNumericCmpUniversal(left, right, LessEquals);
+  return GenerateNumericCmpUniversal(left, right, EvenOrFewer);
 }
 
 expFlag *GenerateNumericEvenGreater(expNumber *left, expNumber *right)
 {
-  return GenerateNumericCmpUniversal(left, right, MoreEquals);
+  return GenerateNumericCmpUniversal(left, right, GreaterOrEven);
 }
 
 expFlag *GenerateNumericLower(expNumber *left, expNumber *right)
 {
-  return GenerateNumericCmpUniversal(left, right, Less);
+  return GenerateNumericCmpUniversal(left, right, Fewer);
 }
 
 expFlag *GenerateNumericGreater(expNumber *left, expNumber *right)
 {
-  return GenerateNumericCmpUniversal(left, right, More);
+  return GenerateNumericCmpUniversal(left, right, Greater);
 }
 
-expFlag *GenerateNumericInvariant(expFlag *value)
+expFlag *GenerateNumericInvariant(expFlag *data)
 {
   expFlag *endpoint = (expFlag *)malloc(sizeof(expFlag));
   if (NULL == endpoint)
     exit(-1);
 
-  endpoint->Type = Not;
-  endpoint->Left = value;
+  endpoint->kind = Opposite ;
+  endpoint->Left = data;
 
   return endpoint;
 }
@@ -457,7 +457,7 @@ expFlag *GenerateNumericWith(expFlag *left, expFlag *right)
   if (NULL == endpoint)
     exit(-1);
 
-  endpoint->Type = And;
+  endpoint->kind = Also;
   endpoint->Left = left;
   endpoint->Right = right;
 
@@ -470,7 +470,7 @@ expFlag *GenerateNumericEither(expFlag *left, expFlag *right)
   if (NULL == endpoint)
     exit(-1);
 
-  endpoint->Type = Or;
+  endpoint->kind = Either;
   endpoint->Left = left;
   endpoint->Right = right;
 
@@ -484,7 +484,7 @@ expNumber *GenerateNumericSymbol(char *symbol)
     exit(-1);
 
   endpoint->Symbol = symbol;
-  endpoint->Type = IntVariable;
+  endpoint->kind = numericSymbol;
 
   return endpoint;
 }
@@ -496,7 +496,7 @@ expWord *GenerateWordSymbol(char *symbol)
     exit(-1);
 
   endpoint->Symbol = symbol;
-  endpoint->Type = StringVariable;
+  endpoint->kind = wordSymbol;
 
   return endpoint;
 }
@@ -508,19 +508,19 @@ expFlag *GenerateFlagSymbol(char *symbol)
     exit(-1);
 
   endpoint->Symbol = symbol;
-  endpoint->Type = BoolVariable;
+  endpoint->kind = flagSymbol;
 
   return endpoint;
 }
 
-expWrite *GenerateWriteWord(char *value)
+expWrite *GenerateWriteWord(char *data)
 {
   expWrite *endpoint = (expWrite *)malloc(sizeof(expWrite));
   if (NULL == endpoint)
     exit(-1);
 
-  endpoint->Value = value;
-  endpoint->Type = PrintString;
+  endpoint->Worth = data;
+  endpoint->kind = WriteText;
 
   return endpoint;
 }
@@ -532,7 +532,7 @@ expWrite *GenerateWriteSymbol(char *symbol)
     exit(-1);
 
   endpoint->Symbol = symbol;
-  endpoint->Type = PrintVariable;
+  endpoint->kind = WriteSymbol;
 
   return endpoint;
 }
@@ -557,18 +557,18 @@ Symbol *ReceiveSymbol(char *title)
   Symbol *endpoint = RAM;
   while (NULL != endpoint->Upcoming)
   {
-    if (0 == strcmp(endpoint->Name, title) && 0 == strcmp(endpoint->Scope, currentScope))
+    if (0 == strcmp(endpoint->Name, title) && 0 == strcmp(endpoint->Range, crntRange))
       return endpoint;
 
     endpoint = endpoint->Upcoming;
   }
 
-  if (0 == strcmp(endpoint->Name, title) && 0 == strcmp(endpoint->Scope, currentScope))
+  if (0 == strcmp(endpoint->Name, title) && 0 == strcmp(endpoint->Range, crntRange))
     return endpoint;
   return NULL;
 }
 
-void InsertSymbol(char *title, char *value, VariableType type)
+void InsertSymbol(char *title, char *data, SymbolicTp kind)
 {
   if (NULL == RAM)
   {
@@ -579,50 +579,50 @@ void InsertSymbol(char *title, char *value, VariableType type)
   Symbol *endpoint = RAM;
   while (NULL != endpoint->Upcoming)
   {
-    if (0 == strcmp(endpoint->Name, title) && 0 == strcmp(endpoint->Scope, currentScope))
+    if (0 == strcmp(endpoint->Name, title) && 0 == strcmp(endpoint->Range, crntRange))
       break;
 
     endpoint = endpoint->Upcoming;
   }
 
-  if (0 == strcmp(endpoint->Name, title) && 0 == strcmp(endpoint->Scope, currentScope))
+  if (0 == strcmp(endpoint->Name, title) && 0 == strcmp(endpoint->Range, crntRange))
   {
-    endpoint->Value = value;
+    endpoint->Worth = data;
     return;
   }
 }
 
-Symbol *GenerateSymbol(char *title, char *value, VariableType type)
+Symbol *GenerateSymbol(char *title, char *data, SymbolicTp kind)
 {
   Symbol *endpoint = (Symbol *)malloc(sizeof(Symbol));
   if (NULL == endpoint)
     exit(-1);
 
   endpoint->Name = title;
-  endpoint->Value = value;
+  endpoint->Worth = data;
   endpoint->Upcoming = NULL;
-  endpoint->Type = type;
-  endpoint->Scope = currentScope;
+  endpoint->kind = kind;
+  endpoint->Range = crntRange;
 }
 
-void GenerateNewSymbol(char *title, char *value, VariableType type)
+void GenerateNewSymbol(char *title, char *data, SymbolicTp kind)
 {
   if (NULL == RAM)
   {
-    RAM = GenerateSymbol(title, value, type);
+    RAM = GenerateSymbol(title, data, kind);
   }
   else
   {
     Symbol *endpoint = RAM;
     while (NULL != endpoint->Upcoming)
     {
-      if (0 == strcmp(endpoint->Name, title) && 0 == strcmp(endpoint->Scope, currentScope))
+      if (0 == strcmp(endpoint->Name, title) && 0 == strcmp(endpoint->Range, crntRange))
         break;
 
       endpoint = endpoint->Upcoming;
     }
 
-    endpoint->Upcoming = GenerateSymbol(title, value, type);
+    endpoint->Upcoming = GenerateSymbol(title, data, kind);
   }
 }
 
@@ -631,42 +631,42 @@ char *ProcessExpNumeric(expNumber *exp)
   if (NULL == exp)
     return NULL;
 
-  char *value;
+  char *data;
 
   char temp[10];
   int left;
   int right;
   Symbol *symbol;
 
-  switch (exp->Type)
+  switch (exp->kind)
   {
-  case IntLiteral:
-    value = exp->Value;
+  case numericData:
+    data = exp->Worth;
     break;
-  case IntVariable:
+  case numericSymbol:
     symbol = ReceiveSymbol(exp->Symbol);
     if (symbol == NULL)
     {
       printf("Error: symbol %s undeclared\n", exp->Symbol);
       exit(-1);
     }
-    value = symbol->Value;
+    data = symbol->Worth;
     break;
-  case Multiplication:
+  case MathMul:
     left = atoi(ProcessExpNumeric(exp->Left));
     right = atoi(ProcessExpNumeric(exp->Right));
 
     snprintf(temp, 10, "%d", left * right);
-    value = strdup(temp);
+    data = strdup(temp);
     break;
-  case Subtraction:
+  case Minus:
     left = atoi(ProcessExpNumeric(exp->Left));
     right = atoi(ProcessExpNumeric(exp->Right));
 
     snprintf(temp, 10, "%d", left - right);
-    value = strdup(temp);
+    data = strdup(temp);
     break;
-  case Division:
+  case MathSplitEvenGroup:
     left = atoi(ProcessExpNumeric(exp->Left));
     right = atoi(ProcessExpNumeric(exp->Right));
     if (right == 0)
@@ -676,18 +676,18 @@ char *ProcessExpNumeric(expNumber *exp)
     }
 
     snprintf(temp, 10, "%d", left / right);
-    value = strdup(temp);
+    data = strdup(temp);
     break;
-  case Addition:
+  case Plus:
     left = atoi(ProcessExpNumeric(exp->Left));
     right = atoi(ProcessExpNumeric(exp->Right));
 
     snprintf(temp, 10, "%d", left + right);
-    value = strdup(temp);
+    data = strdup(temp);
     break;
   }
 
-  return value;
+  return data;
 }
 
 char *ProcessExpWord(expWord *exp)
@@ -695,25 +695,25 @@ char *ProcessExpWord(expWord *exp)
   if (NULL == exp)
     return NULL;
 
-  char *value;
+  char *data;
   Symbol *symbol;
-  switch (exp->Type)
+  switch (exp->kind)
   {
-  case StringLiteral:
-    value = exp->Value;
+  case wordValue:
+    data = exp->Worth;
     break;
-  case StringVariable:
+  case wordSymbol:
     symbol = ReceiveSymbol(exp->Symbol);
     if (symbol == NULL)
     {
       printf("Error: symbol %s undeclared\n", exp->Symbol);
       exit(-1);
     }
-    value = symbol->Value;
+    data = symbol->Worth;
     break;
   }
 
-  return value;
+  return data;
 }
 
 void ProcessExpWrite(expWrite *exp)
@@ -723,16 +723,16 @@ void ProcessExpWrite(expWrite *exp)
 
   Symbol *symbol;
   char *p;
-  switch (exp->Type)
+  switch (exp->kind)
   {
-  case PrintString:
-    p = exp->Value;
+  case WriteText:
+    p = exp->Worth;
     p++;
     p[strlen(p) - 1] = 0;
 
     printf("%s\n", p);
     break;
-  case PrintVariable:
+  case WriteSymbol:
     symbol = ReceiveSymbol(exp->Symbol);
     if (symbol == NULL)
     {
@@ -740,14 +740,14 @@ void ProcessExpWrite(expWrite *exp)
       exit(-1);
     }
 
-    printf("%s\n", symbol->Value);
+    printf("%s\n", symbol->Worth);
     break;
   }
 }
 
-int ReceiveFlagVal(char *value)
+int ReceiveFlagVal(char *data)
 {
-  if (value == "true")
+  if (data == "true")
   {
     return 1;
   }
@@ -757,9 +757,9 @@ int ReceiveFlagVal(char *value)
   }
 }
 
-char *ReceiveNumericFlagVal(int value)
+char *ReceiveNumericFlagVal(int data)
 {
-  if (value == 1)
+  if (data == 1)
   {
     return "true";
   }
@@ -774,122 +774,122 @@ char *ProcessExpFlag(expFlag *exp)
   if (NULL == exp)
     return NULL;
 
-  char *value;
+  char *data;
   int temp;
   Symbol *symbol;
-  switch (exp->Type)
+  switch (exp->kind)
   {
-  case BoolLiteral:
-    value = exp->Value;
+  case flagData:
+    data = exp->Worth;
     break;
-  case BoolVariable:
+  case flagSymbol:
     symbol = ReceiveSymbol(exp->Symbol);
     if (symbol == NULL)
     {
       printf("Error: symbol %s undeclared\n", exp->Symbol);
       exit(-1);
     }
-    value = symbol->Value;
+    data = symbol->Worth;
     break;
-  case Equals:
-    temp = atoi(ProcessExpNumeric(exp->IntLeft)) == atoi(ProcessExpNumeric(exp->IntRight));
+  case Even:
+    temp = atoi(ProcessExpNumeric(exp->numericLeft)) == atoi(ProcessExpNumeric(exp->numericRight));
 
-    value = ReceiveNumericFlagVal(temp);
+    data = ReceiveNumericFlagVal(temp);
     break;
-  case And:
+  case Also:
     temp = ReceiveFlagVal(ProcessExpFlag(exp->Left)) && ReceiveFlagVal(ProcessExpFlag(exp->Right));
 
-    value = ReceiveNumericFlagVal(temp);
+    data = ReceiveNumericFlagVal(temp);
     break;
-  case Not:
+  case Opposite :
     temp = ReceiveFlagVal(ProcessExpFlag(exp->Left));
 
     if (temp == 1)
     {
-      value = "false";
+      data = "false";
     }
     else
     {
-      value = "true";
+      data = "true";
     }
     break;
-  case Or:
+  case Either:
     temp = ReceiveFlagVal(ProcessExpFlag(exp->Left)) || ReceiveFlagVal(ProcessExpFlag(exp->Right));
 
-    value = ReceiveNumericFlagVal(temp);
+    data = ReceiveNumericFlagVal(temp);
     break;
-  case Less:
-    temp = atoi(ProcessExpNumeric(exp->IntLeft)) < atoi(ProcessExpNumeric(exp->IntRight));
+  case Fewer:
+    temp = atoi(ProcessExpNumeric(exp->numericLeft)) < atoi(ProcessExpNumeric(exp->numericRight));
 
-    value = ReceiveNumericFlagVal(temp);
+    data = ReceiveNumericFlagVal(temp);
     break;
-  case More:
-    temp = atoi(ProcessExpNumeric(exp->IntLeft)) > atoi(ProcessExpNumeric(exp->IntRight));
+  case Greater:
+    temp = atoi(ProcessExpNumeric(exp->numericLeft)) > atoi(ProcessExpNumeric(exp->numericRight));
 
-    value = ReceiveNumericFlagVal(temp);
+    data = ReceiveNumericFlagVal(temp);
     break;
-  case MoreEquals:
-    temp = atoi(ProcessExpNumeric(exp->IntLeft)) >= atoi(ProcessExpNumeric(exp->IntRight));
+  case GreaterOrEven:
+    temp = atoi(ProcessExpNumeric(exp->numericLeft)) >= atoi(ProcessExpNumeric(exp->numericRight));
 
-    value = ReceiveNumericFlagVal(temp);
+    data = ReceiveNumericFlagVal(temp);
     break;
-  case LessEquals:
-    temp = atoi(ProcessExpNumeric(exp->IntLeft)) <= atoi(ProcessExpNumeric(exp->IntRight));
+  case EvenOrFewer:
+    temp = atoi(ProcessExpNumeric(exp->numericLeft)) <= atoi(ProcessExpNumeric(exp->numericRight));
 
-    value = ReceiveNumericFlagVal(temp);
+    data = ReceiveNumericFlagVal(temp);
     break;
   }
 
-  return value;
+  return data;
 }
 
-void ProcessMagicShout(Magic *function, Line *function_call)
+void ProcessMagicShout(Magic *magic, Line *function_call)
 {
-  Characteristic *param = function->Characteristics;
-  Characteristic *value = function_call->Characteristics;
+  Characteristic *param = magic->Characteristics;
+  Characteristic *data = function_call->Characteristics;
   char *valuestr;
   while (NULL != param)
   {
-    if (param->Type != value->Type)
+    if (param->kind != data->kind)
     {
-      printf("Error: function param type is not accepted\n");
+      printf("Error: magic param kind is not accepted\n");
       exit(-1);
     }
 
-    if (value->Type == 0)
+    if (data->kind == 0)
     {
-      valuestr = ProcessExpNumeric(value->inte);
+      valuestr = ProcessExpNumeric(data->inte);
     }
-    else if (value->Type == 1)
+    else if (data->kind == 1)
     {
-      valuestr = ProcessExpWord(value->stringe);
+      valuestr = ProcessExpWord(data->stringe);
     }
-    else if (value->Type == 2)
+    else if (data->kind == 2)
     {
-      valuestr = ProcessExpFlag(value->boole);
+      valuestr = ProcessExpFlag(data->boole);
     }
 
-    currentScope = function->MagicName;
-    param->Value = valuestr;
+    crntRange = magic->MagicName;
+    param->Worth = valuestr;
     Symbol *var = ReceiveSymbol(param->Name);
     if (var == NULL)
     {
-      GenerateNewSymbol(param->Name, valuestr, param->Type);
+      GenerateNewSymbol(param->Name, valuestr, param->kind);
     }
     else
     {
-      InsertSymbol(param->Name, valuestr, param->Type);
+      InsertSymbol(param->Name, valuestr, param->kind);
     }
 
-    currentScope = "global";
+    crntRange = "global";
 
-    value = value->Upcoming;
+    data = data->Upcoming;
     param = param->Upcoming;
   }
 
-  currentScope = function->MagicName;
-  ProcessLine(function->Content);
-  currentScope = "global";
+  crntRange = magic->MagicName;
+  ProcessLine(magic->Content);
+  crntRange = "global";
 }
 
 void ProcessLine(Line *line)
@@ -897,89 +897,89 @@ void ProcessLine(Line *line)
   if (NULL == line)
     return;
 
-  char *value;
+  char *data;
   Symbol *exValue;
-  Magic *function;
-  switch (line->Type)
+  Magic *magic;
+  switch (line->kind)
   {
-  case BoolDeclaration:
-    value = ProcessExpFlag(line->FlagVal);
+  case CreateFlag:
+    data = ProcessExpFlag(line->FlagVal);
     exValue = ReceiveSymbol(line->Symbol);
     if (exValue == NULL)
     {
-      GenerateNewSymbol(line->Symbol, value, BOOL);
+      GenerateNewSymbol(line->Symbol, data, flag);
       break;
     }
     printf("Error: symbol %s already declared\n", line->Symbol);
     exit(-1);
     break;
 
-  case IntDeclaration:
-    value = ProcessExpNumeric(line->NumericVal);
+  case CreateNumeric:
+    data = ProcessExpNumeric(line->NumericVal);
     exValue = ReceiveSymbol(line->Symbol);
     if (exValue == NULL)
     {
-      GenerateNewSymbol(line->Symbol, value, INT);
+      GenerateNewSymbol(line->Symbol, data, numeric);
       break;
     }
     printf("Error: symbol %s already declared\n", line->Symbol);
     exit(-1);
     break;
 
-  case StringDeclaration:
-    value = ProcessExpWord(line->StringValue);
+  case CreateWord:
+    data = ProcessExpWord(line->WordWorth);
     exValue = ReceiveSymbol(line->Symbol);
     if (exValue == NULL)
     {
-      GenerateNewSymbol(line->Symbol, value, STRING);
+      GenerateNewSymbol(line->Symbol, data, word);
       break;
     }
     printf("Error: symbol %s already declared\n", line->Symbol);
     exit(-1);
     break;
 
-  case BoolAssignment:
-    value = ProcessExpFlag(line->FlagVal);
+  case FlagDefinition:
+    data = ProcessExpFlag(line->FlagVal);
     exValue = ReceiveSymbol(line->Symbol);
     if (exValue == NULL)
     {
       printf("Error: symbol %s undeclared\n", line->Symbol);
       exit(-1);
     }
-    InsertSymbol(line->Symbol, value, BOOL);
+    InsertSymbol(line->Symbol, data, flag);
     break;
 
-  case IntAssignment:
-    value = ProcessExpNumeric(line->NumericVal);
+  case NumericDefinition:
+    data = ProcessExpNumeric(line->NumericVal);
     exValue = ReceiveSymbol(line->Symbol);
     if (exValue == NULL)
     {
       printf("Error: symbol %s undeclared\n", line->Symbol);
       exit(-1);
     }
-    InsertSymbol(line->Symbol, value, INT);
+    InsertSymbol(line->Symbol, data, numeric);
     break;
 
-  case StringAssignment:
-    value = ProcessExpWord(line->StringValue);
+  case WordDefinition:
+    data = ProcessExpWord(line->WordWorth);
     exValue = ReceiveSymbol(line->Symbol);
     if (exValue == NULL)
     {
       printf("Error: symbol %s undeclared\n", line->Symbol);
       exit(-1);
     }
-    InsertSymbol(line->Symbol, value, INT);
+    InsertSymbol(line->Symbol, data, numeric);
     break;
   case Print:
     ProcessExpWrite(line->WriteText);
     break;
-  case Sequence:
+  case Chain:
     ProcessLine(line->Left);
     ProcessLine(line->Right);
     break;
-  case Conditional:
-    value = ProcessExpFlag(line->FlagVal);
-    if (ReceiveFlagVal(value) == 1)
+  case Restrictive:
+    data = ProcessExpFlag(line->FlagVal);
+    if (ReceiveFlagVal(data) == 1)
     {
       ProcessLine(line->Left);
     }
@@ -988,39 +988,39 @@ void ProcessLine(Line *line)
       ProcessLine(line->Right);
     }
     break;
-  case While:
-    value = ProcessExpFlag(line->FlagVal);
-    while (ReceiveFlagVal(value) == 1)
+  case Loop:
+    data = ProcessExpFlag(line->FlagVal);
+    while (ReceiveFlagVal(data) == 1)
     {
       ProcessLine(line->Left);
-      value = ProcessExpFlag(line->FlagVal);
+      data = ProcessExpFlag(line->FlagVal);
     }
     break;
-  case FunctionDeclaration:
-    if (currentScope != "global")
+  case MagicDefinition:
+    if (crntRange != "global")
     {
       printf("Error: declaring functions inside functions is not allowed\n");
       exit(-1);
     }
 
-    function = ReceiveMagic(line->Symbol);
-    if (function != NULL)
+    magic = ReceiveMagic(line->Symbol);
+    if (magic != NULL)
     {
-      printf("Error: function %s is already declared\n", line->Symbol);
+      printf("Error: magic %s is already declared\n", line->Symbol);
       exit(-1);
     }
 
     GenerateNewMagic(line->Symbol, line->Characteristics, line->Left);
     break;
-  case FunctionCall:
-    function = ReceiveMagic(line->Symbol);
-    if (function == NULL)
+  case MagicShout:
+    magic = ReceiveMagic(line->Symbol);
+    if (magic == NULL)
     {
-      printf("Error: function %s is undeclared\n", line->Symbol);
+      printf("Error: magic %s is undeclared\n", line->Symbol);
       exit(-1);
     }
 
-    ProcessMagicShout(function, line);
+    ProcessMagicShout(magic, line);
     break;
   }
 }
@@ -1030,27 +1030,27 @@ void RemoveExpNumeric(expNumber *exp)
   if (NULL == exp)
     return;
 
-  switch (exp->Type)
+  switch (exp->kind)
   {
-  case IntLiteral:
-    free(exp->Value);
+  case numericData:
+    free(exp->Worth);
     break;
-  case IntVariable:
+  case numericSymbol:
     free(exp->Symbol);
     break;
-  case Subtraction:
+  case Minus:
     RemoveExpNumeric(exp->Left);
     RemoveExpNumeric(exp->Right);
     break;
-  case Division:
+  case MathSplitEvenGroup:
     RemoveExpNumeric(exp->Left);
     RemoveExpNumeric(exp->Right);
     break;
-  case Addition:
+  case Plus:
     RemoveExpNumeric(exp->Left);
     RemoveExpNumeric(exp->Right);
     break;
-  case Multiplication:
+  case MathMul:
     RemoveExpNumeric(exp->Left);
     RemoveExpNumeric(exp->Right);
     break;
@@ -1063,12 +1063,12 @@ void RemoveExpWord(expWord *exp)
   if (NULL == exp)
     return;
 
-  switch (exp->Type)
+  switch (exp->kind)
   {
-  case StringLiteral:
-    free(exp->Value);
+  case wordValue:
+    free(exp->Worth);
     break;
-  case StringVariable:
+  case wordSymbol:
     free(exp->Symbol);
     break;
   }
@@ -1080,29 +1080,29 @@ void RemoveExpFlag(expFlag *exp)
   if (NULL == exp)
     return;
 
-  switch (exp->Type)
+  switch (exp->kind)
   {
-  case BoolLiteral:
-    free(exp->Value);
+  case flagData:
+    free(exp->Worth);
     break;
-  case BoolVariable:
+  case flagSymbol:
     free(exp->Symbol);
     break;
-  case Or:
-  case And:
+  case Either:
+  case Also:
     RemoveExpFlag(exp->Left);
     RemoveExpFlag(exp->Right);
     break;
-  case Not:
+  case Opposite :
     RemoveExpFlag(exp->Left);
     break;
-  case Equals:
-  case Less:
-  case More:
-  case MoreEquals:
-  case LessEquals:
-    RemoveExpNumeric(exp->IntLeft);
-    RemoveExpNumeric(exp->IntRight);
+  case Even:
+  case Fewer:
+  case Greater:
+  case GreaterOrEven:
+  case EvenOrFewer:
+    RemoveExpNumeric(exp->numericLeft);
+    RemoveExpNumeric(exp->numericRight);
     break;
   }
   free(exp);
@@ -1113,12 +1113,12 @@ void RemoveExpWrite(expWrite *exp)
   if (NULL == exp)
     return;
 
-  switch (exp->Type)
+  switch (exp->kind)
   {
-  case PrintString:
-    free(exp->Value);
+  case WriteText:
+    free(exp->Worth);
     break;
-  case PrintVariable:
+  case WriteSymbol:
     free(exp->Symbol);
     break;
   }
@@ -1130,30 +1130,30 @@ void RemoveLine(Line *line)
   if (NULL == line)
     return;
 
-  switch (line->Type)
+  switch (line->kind)
   {
-  case StringAssignment:
-  case StringDeclaration:
-    RemoveExpWord(line->StringValue);
+  case WordDefinition:
+  case CreateWord:
+    RemoveExpWord(line->WordWorth);
     if (NULL != line->Symbol)
       free(line->Symbol);
     break;
 
-  case BoolAssignment:
-  case BoolDeclaration:
+  case FlagDefinition:
+  case CreateFlag:
     RemoveExpFlag(line->FlagVal);
     if (NULL != line->Symbol)
       free(line->Symbol);
     break;
 
-  case IntAssignment:
-  case IntDeclaration:
+  case NumericDefinition:
+  case CreateNumeric:
     RemoveExpNumeric(line->NumericVal);
     if (NULL != line->Symbol)
       free(line->Symbol);
     break;
 
-  case Sequence:
+  case Chain:
     RemoveLine(line->Left);
     RemoveLine(line->Right);
     break;
@@ -1161,12 +1161,12 @@ void RemoveLine(Line *line)
   case Print:
     RemoveExpWrite(line->WriteText);
     break;
-  case Conditional:
+  case Restrictive:
     RemoveExpFlag(line->FlagVal);
     RemoveLine(line->Left);
     RemoveLine(line->Right);
     break;
-  case While:
+  case Loop:
     RemoveExpFlag(line->FlagVal);
     RemoveLine(line->Left);
     break;

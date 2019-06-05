@@ -3,103 +3,103 @@
 
 #include <stdio.h>
 
-typedef enum VariableTypeEnum
+typedef enum NumerableSymbolType
 {
-    INT,
-    STRING,
-    BOOL
-} VariableType;
+    numeric,
+    word,
+    flag
+} SymbolicTp;
 
 typedef enum NumerableExpNumberType
 {
-    IntLiteral,
-    IntVariable,
-    Addition,
-    Subtraction,
-    Multiplication,
-    Division
-} IntExpressionType;
+    numericData,
+    numericSymbol,
+    Plus,
+    Minus,
+    MathMul,
+    MathSplitEvenGroup
+} expNumericTp;
 
 typedef struct expNumericStructure expNumber;
 struct expNumericStructure
 {
-    IntExpressionType Type;
+    expNumericTp kind;
     expNumber *Left;
     expNumber *Right;
     char *Symbol;
-    char *Value;
+    char *Worth;
 };
 
 typedef enum NumerableExpWordType
 {
-    StringLiteral,
-    StringVariable
-} StringExpressionType;
+    wordValue,
+    wordSymbol
+} expWordType;
 
 typedef struct expWordStructure expWord;
 struct expWordStructure
 {
-    StringExpressionType Type;
+    expWordType kind;
     expWord *left;
     expWord *right;
     char *Symbol;
-    char *Value;
+    char *Worth;
 };
 
 typedef enum NumerableExpFlagType
 {
-    BoolLiteral,
-    BoolVariable,
-    Equals,
-    And,
-    Or,
-    Not,
-    Less,
-    More,
-    LessEquals,
-    MoreEquals
-} BoolExpressionType;
+    flagData,
+    flagSymbol,
+    Even,
+    Also,
+    Either,
+    Opposite ,
+    Fewer,
+    Greater,
+    EvenOrFewer,
+    GreaterOrEven
+} expFlagTp;
 
 typedef struct expFlagStructure expFlag;
 struct expFlagStructure
 {
-    BoolExpressionType Type;
+    expFlagTp kind;
     expFlag *Left;
     expFlag *Right;
-    expNumber *IntLeft;
-    expNumber *IntRight;
+    expNumber *numericLeft;
+    expNumber *numericRight;
     char *Symbol;
-    char *Value;
+    char *Worth;
 };
 
 typedef enum LineTypes
 {
-    IntDeclaration,
-    StringDeclaration,
-    BoolDeclaration,
-    IntAssignment,
-    StringAssignment,
-    BoolAssignment,
+    CreateNumeric,
+    CreateWord,
+    CreateFlag,
+    NumericDefinition,
+    WordDefinition,
+    FlagDefinition,
     Print,
-    Sequence,
-    Conditional,
-    While,
-    FunctionDeclaration,
-    FunctionCall
-} LineType;
+    Chain,
+    Restrictive,
+    Loop,
+    MagicDefinition,
+    MagicShout
+} LineTp;
 
 typedef enum NumericExpWriteType
 {
-    PrintString,
-    PrintVariable
-} PrintExpresssionType;
+    WriteText,
+    WriteSymbol
+} expWriteType;
 
 typedef struct NumericExpWriteStructure expWrite;
 struct NumericExpWriteStructure
 {
-    PrintExpresssionType Type;
+    expWriteType kind;
     char *Symbol;
-    char *Value;
+    char *Worth;
 };
 
 typedef struct CharacteristicsStructure Characteristic;
@@ -108,21 +108,21 @@ struct CharacteristicsStructure
     expFlag *boole;
     expNumber *inte;
     expWord *stringe;
-    VariableType Type;
+    SymbolicTp kind;
     Characteristic *Upcoming;
     char *Name;
-    char *Value;
+    char *Worth;
 };
 
 typedef struct LineStructure Line;
 struct LineStructure
 {
-    LineType Type;
+    LineTp kind;
     Line *Left;
     Line *Right;
     expNumber *NumericVal;
     expFlag *FlagVal;
-    expWord *StringValue;
+    expWord *WordWorth;
     expWrite *WriteText;
     Characteristic *Characteristics;
     char *Symbol;
@@ -137,62 +137,62 @@ struct MagicStructure
     Magic *Upcoming;
 };
 
-Line *GenerateNumericDefinition(char *variable, expNumber *value);
-Line *GenerateWordDefinition(char *variable, expWord *value);
-Line *GenerateFlagDefinition(char *variable, expFlag *value);
+Line *GenerateNumericDefinition(char *symbol, expNumber *data);
+Line *GenerateWordDefinition(char *symbol, expWord *data);
+Line *GenerateFlagDefinition(char *symbol, expFlag *data);
 
-Line *GenerateNumericCreation(char *variable, expNumber *value);
-Line *GenerateWordCreation(char *variable, expWord *value);
-Line *GenerateFlagCreation(char *variable, expFlag *value);
+Line *GenerateNumericCreation(char *symbol, expNumber *data);
+Line *GenerateWordCreation(char *symbol, expWord *data);
+Line *GenerateFlagCreation(char *symbol, expFlag *data);
 
-Line *Write(expWrite *variable);
-Line *LineSeqGenerate(Line *first, Line *second);
-Line *GeneratePositiveNegative(Line *ifTrue, Line *ifFalse, expFlag *condition);
-Line *GenerateLoop(expFlag *condition, Line *body);
-Line *NewMagic(char *function_name, Characteristic *params, Line *body);
-Line *GenerateMagicShout(char *function_name, Characteristic *values);
+Line *Write(expWrite *symbol);
+Line *LineChainGenerate(Line *primary, Line *secondary);
+Line *GeneratePositiveNegative(Line *Positive, Line *Negative, expFlag *restriction);
+Line *GenerateLoop(expFlag *restriction, Line *content);
+Line *NewMagic(char *magic_name, Characteristic *params, Line *content);
+Line *GenerateMagicShout(char *magic_name, Characteristic *worths);
 
-Characteristic *GenerateCharacteristic(char *name, VariableType type);
-Characteristic *GenerateCharacteristics(Characteristic *first, Characteristic *second);
+Characteristic *GenerateCharacteristic(char *name, SymbolicTp type);
+Characteristic *GenerateCharacteristics(Characteristic *primary, Characteristic *secondary);
 
-Characteristic *GenerateNumericExpCharacteritic(expNumber *expression);
-Characteristic *GenerateWordExpCharacteritic(expWord *expression);
-Characteristic *GenerateFlagExpCharacteritic(expFlag *expression);
+Characteristic *GenerateNumericExpCharacteritic(expNumber *exp);
+Characteristic *GenerateWordExpCharacteritic(expWord *exp);
+Characteristic *GenerateFlagExpCharacteritic(expFlag *exp);
 
-expWrite *GenerateWriteWord(char *value);
-expWrite *GenerateWriteSymbol(char *variable);
+expWrite *GenerateWriteWord(char *data);
+expWrite *GenerateWriteSymbol(char *symbol);
 
 expNumber *GenerateNumeric(int number);
 expNumber *GenerateAddition(expNumber *left, expNumber *right);
 expNumber *GenerateSubtraction(expNumber *left, expNumber *right);
 expNumber *GenerateMulExpression(expNumber *left, expNumber *right);
 expNumber *GenerateDivExpression(expNumber *left, expNumber *right);
-expNumber *GenerateNumericSymbol(char *variable);
+expNumber *GenerateNumericSymbol(char *symbol);
 
-expWord *GenerateWord(char *string);
-expWord *GenerateWordSymbol(char *variable);
+expWord *GenerateWord(char *word);
+expWord *GenerateWordSymbol(char *symbol);
 
-expFlag *GenerateFlag(int bool);
-expFlag *GenerateFlagSymbol(char *variable);
+expFlag *GenerateFlag(int flag);
+expFlag *GenerateFlagSymbol(char *symbol);
 expFlag *GenerateNumericEven(expNumber *left, expNumber *right);
 expFlag *GenerateNumericEvenLess(expNumber *left, expNumber *right);
 expFlag *GenerateNumericEvenGreater(expNumber *left, expNumber *right);
 expFlag *GenerateNumericLower(expNumber *left, expNumber *right);
 expFlag *GenerateNumericGreater(expNumber *left, expNumber *right);
-expFlag *GenerateNumericInvariant(expFlag *value);
+expFlag *GenerateNumericInvariant(expFlag *data);
 expFlag *GenerateNumericWith(expFlag *left, expFlag *right);
 expFlag *GenerateNumericEither(expFlag *left, expFlag *right);
 
 void RemoveLine(Line *line);
-void RemoveExpNumericMathematics(expNumber *expression);
+void RemoveExpNumericMathematics(expNumber *exp);
 
 void EmptyRAM();
 void EmptyMagicRAM();
 
 void ProcessLine(Line *line);
 
-char *ProcessExpNumeric(expNumber *expression);
-char *ProcessExpWord(expWord *expression);
-char *ProcessExpFlag(expFlag *expression);
+char *ProcessExpNumeric(expNumber *exp);
+char *ProcessExpWord(expWord *exp);
+char *ProcessExpFlag(expFlag *exp);
 
 #endif
