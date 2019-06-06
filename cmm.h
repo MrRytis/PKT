@@ -185,7 +185,10 @@ expFlag *GenerateNumericEither(expFlag *left, expFlag *right);
 
 void RemoveLine(Line *line);
 void RemoveExpNumericMathematics(expNumber *exp);
-
+void GenerateMagicCat(expWord *params);
+void GenerateMagicCat2(expWord *params, expWord *params2);
+void GenerateMagicCat3(expWord *params, expWord *params2, expWord *params3);
+void GenerateMagicCat4(expWord *params,expWord *params2,expWord *params3,expWord *params4);
 void EmptyRAM();
 void EmptyMagicRAM();
 

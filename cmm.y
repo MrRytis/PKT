@@ -78,7 +78,10 @@ line: END_LINE { $$ = NULL; }
   | WHILE bool_exp CURL_LEFT body CURL_RIGHT { $$ = GenerateLoop($2, $4); }
   | NAME BRACKET_LEFT prm_values BRACKET_RIGHT { $$ = GenerateMagicShout($1, $3); }
   | FUNCTION NAME BRACKET_LEFT params BRACKET_RIGHT CURL_LEFT body CURL_RIGHT { $$ = NewMagic($2, $4, $7); }
-  | JOIN BRACKET_LEFT params BRACKET_RIGHT { $$ = GenerateMagicCat($3); }
+  | JOIN string_exp { GenerateMagicCat($2); }
+  | JOIN string_exp string_exp { GenerateMagicCat2($2,$3); }
+  | JOIN string_exp string_exp string_exp { GenerateMagicCat3($2,$3,$4); }
+  | JOIN string_exp string_exp string_exp string_exp{ GenerateMagicCat4($2,$3,$4,$5); }
 
 int_exp:
   NAME { $$ = GenerateNumericSymbol($1); }

@@ -1171,6 +1171,112 @@ void RemoveLine(Line *line)
     RemoveLine(line->Left);
     break;
   }
-
   free(line);
 }
+
+  void GenerateMagicCat(expWord *params)
+  {
+      char *joinedString = malloc(100);
+      char *pt;
+      pt = strtok (params->Worth,",");
+      while (pt != NULL)
+      {
+        strcat(joinedString, pt);
+        pt = strtok (NULL, ",");
+      }
+
+      printf("Joined string:");
+      printf(joinedString);
+      printf("\n");
+  }
+
+  void GenerateMagicCat2(expWord *params, expWord *params2)
+  {
+      char *joinedString = malloc(100);
+      char *pt;
+      pt = strtok (params->Worth,",");
+      while (pt != NULL)
+      {
+        strcat(joinedString, pt);
+        pt = strtok (NULL, ",");
+      }
+
+      pt = strtok (params2->Worth,",");
+      while (pt != NULL)
+      {
+        strcat(joinedString, pt);
+        pt = strtok (NULL, ",");
+      }
+
+      printf("Joined string:");
+      printf(joinedString);
+      printf("\n");
+  }
+
+  void GenerateMagicCat3(expWord *params, expWord *params2, expWord *params3)
+  {
+      char *joinedString = malloc(100);
+      char *pt;
+      pt = strtok (params->Worth,",");
+      while (pt != NULL)
+      {
+        strcat(joinedString, pt);
+        pt = strtok (NULL, ",");
+      }
+
+      pt = strtok (params2->Worth,",");
+      while (pt != NULL)
+      {
+        strcat(joinedString, pt);
+        pt = strtok (NULL, ",");
+      }
+
+      pt = strtok (params3->Worth,",");
+      while (pt != NULL)
+      {
+        strcat(joinedString, pt);
+        pt = strtok (NULL, ",");
+      }
+
+      printf("Joined string:");
+      printf(joinedString);
+      printf("\n");
+    
+  }
+
+  void GenerateMagicCat4(expWord *params,expWord *params2,expWord *params3,expWord *params4)
+  {
+      char *joinedString = malloc(100);
+      char *pt;
+      pt = strtok (params->Worth,",");
+      while (pt != NULL)
+      {
+        strcat(joinedString, pt);
+        pt = strtok (NULL, ",");
+      }
+
+      pt = strtok (params2->Worth,",");
+      while (pt != NULL)
+      {
+        strcat(joinedString, pt);
+        pt = strtok (NULL, ",");
+      }
+
+      pt = strtok (params3->Worth,",");
+      while (pt != NULL)
+      {
+        strcat(joinedString, pt);
+        pt = strtok (NULL, ",");
+      }
+
+      pt = strtok (params4->Worth,",");
+      while (pt != NULL)
+      {
+        strcat(joinedString, pt);
+        pt = strtok (NULL, ",");
+      }
+
+      printf("Joined string:");
+      printf(joinedString);
+      printf("\n");
+  }
