@@ -40,6 +40,7 @@
 "else"                 { return ELSE; }
 "loop"                 { return WHILE; }
 "magic"                { return FUNCTION; }
+"magicat"              { return JOIN; }
 
 "number"               { return INT_TYPE; }
 "word"                 { return STRING_TYPE; }

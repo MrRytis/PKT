@@ -51,7 +51,7 @@ typedef void* yyscan_t;
 
 %token TRUE FALSE
 %token INT_TYPE STRING_TYPE BOOL_TYPE
-%token PRINT IF CURL_LEFT CURL_RIGHT ELSE WHILE FUNCTION COMMA
+%token PRINT IF CURL_LEFT CURL_RIGHT ELSE WHILE FUNCTION COMMA JOIN
 %token LTE GTE LT GT EQUALS NOT AND OR
 %token BRACKET_LEFT BRACKET_RIGHT MULTIPLY ADD MIN DIVIDE ASSIGNMENT END_LINE
 
@@ -78,6 +78,7 @@ line: END_LINE { $$ = NULL; }
   | WHILE bool_exp CURL_LEFT body CURL_RIGHT { $$ = GenerateLoop($2, $4); }
   | NAME BRACKET_LEFT prm_values BRACKET_RIGHT { $$ = GenerateMagicShout($1, $3); }
   | FUNCTION NAME BRACKET_LEFT params BRACKET_RIGHT CURL_LEFT body CURL_RIGHT { $$ = NewMagic($2, $4, $7); }
+  | JOIN BRACKET_LEFT params BRACKET_RIGHT { $$ = GenerateMagicCat($3); }
 
 int_exp:
   NAME { $$ = GenerateNumericSymbol($1); }

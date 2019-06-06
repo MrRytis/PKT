@@ -9,7 +9,7 @@ Line* ParseFile(FILE* file);
 
 int main()
 {
-  FILE *myfile = fopen("code.cl", "r");
+  FILE *myfile = fopen("code.cmm", "r");
   if (!myfile) {
     printf ("Can't open!\n");
     return -1;
